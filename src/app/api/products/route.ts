@@ -141,6 +141,10 @@ export async function PUT(request: NextRequest) {
         }),
       });
     }
+
+    // Trigger on-demand cache revalidation on the main storefront (port 3000 / production)
+    const revalidateUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000") + "/api/v1/revalidate";
+    fetch(revalidateUrl, { method: "POST" }).catch(() => {});
   } catch (err) {
     console.warn("Proxying product update to central backend failed:", err);
   }
