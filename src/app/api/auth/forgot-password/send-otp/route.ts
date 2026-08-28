@@ -1,22 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { loadAdminCredentials } from "@/lib/admin-auth";
+import { proxyToBackend } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
-// In-memory reset store for standalone admin app
 export const resetOtpStore = new Map<string, { otp: string; expiresAt: number }>();
 
 export async function POST(request: NextRequest) {
   const admin = loadAdminCredentials();
   const targetMobile = admin.mobile || "7979784087";
 
+  // If running on Vercel with zero WhatsApp keys, delegate to secure Lambda backend
+  if (!process.env.WHATSAPP_API_TOKEN) {
+    try {
+      const backendRes = await proxyToBackend("/admin/auth/forgot-password/send-otp", { method: "POST" });
+      const data = await backendRes.json();
+      return NextResponse.json(data, { status: backendRes.status });
+    } catch (err) {
+      console.warn("Backend proxy failed, falling back to local dispatch:", err);
+    }
+  }
+
   const otp = crypto.randomInt(100000, 999999).toString();
-  const expiresAt = Date.now() + 600000; // 10 mins
+  const expiresAt = Date.now() + 600000;
 
   resetOtpStore.set(`admin_reset_${targetMobile}`, { otp, expiresAt });
 
-  // Dispatch real WhatsApp message via Meta Cloud API
   const token =
     process.env.WHATSAPP_API_TOKEN ||
     "EAAUCAAyPqm4BSA5TTp9vcSygOLNnVgq86YQ5s1AwOckCWAYmBn5vCNjH3ixyZB0dDbrriO2ani8ZBkXxpBJvN3eslZBFKzA5BmMVTdAKFbQWMsjMUmlZCMtPsNpJZA1mpZA8gQVuVqSxL30LMlkObN2RPQZAX72dQZBoou0DZAk1m0bfr0ciZCFjFUhqBLBW6G4PBa4QZDZD";

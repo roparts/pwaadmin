@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { loadAdminCredentials } from "@/lib/admin-auth";
+import { proxyToBackend } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +11,19 @@ export async function POST(request: NextRequest) {
   const admin = loadAdminCredentials();
   const targetMobile = admin.mobile || "7979784087";
 
+  // If running on Vercel with zero WhatsApp keys, delegate to secure Lambda backend
+  if (!process.env.WHATSAPP_API_TOKEN) {
+    try {
+      const backendRes = await proxyToBackend("/admin/auth/mfa-whatsapp", { method: "POST" });
+      const data = await backendRes.json();
+      return NextResponse.json(data, { status: backendRes.status });
+    } catch (err) {
+      console.warn("Backend proxy failed, falling back to local dispatch:", err);
+    }
+  }
+
   const otp = crypto.randomInt(100000, 999999).toString();
-  const expiresAt = Date.now() + 600000; // 10 mins
+  const expiresAt = Date.now() + 600000;
 
   mfaOtpStore.set(`admin_mfa_${targetMobile}`, { otp, expiresAt });
 
