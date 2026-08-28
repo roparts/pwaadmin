@@ -146,14 +146,32 @@ export interface OrderTrackingInfo {
 export interface Order {
   id: string;
   orderNumber: string;
-  customerId: string;
+  customerId?: string;
+  customerName?: string;
+  customerEmail?: string;
   customerMobile: string;
   items: OrderItem[];
   subtotal: number;
+  discount?: number;
+  shipping?: number;
+  gst?: number;
+  couponCode?: string;
+  couponDiscount?: number;
   total: number;
   status: OrderStatus;
   shippingAddress: Address;
+  billingAddress?: Address;
+  paymentId?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
   tracking: OrderTrackingInfo;
+  milestones?: Array<{
+    status: OrderStatus;
+    title: string;
+    description: string;
+    timestamp: string;
+    completed: boolean;
+  }>;
   createdAt: string;
   updatedAt: string;
 }

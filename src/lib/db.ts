@@ -3,13 +3,14 @@ import path from "path";
 import { initialProducts, initialOrders, initialCoupons } from "../data/db-store";
 import type { Product, Order, Coupon } from "./types";
 
-interface DbStoreData {
+export interface DbStoreData {
   products: Product[];
   categories: any[];
   coupons: Coupon[];
   settings: any;
   banners: any[];
   users: any[];
+  orders: Order[];
 }
 
 let memoryStore: DbStoreData = {
@@ -19,9 +20,8 @@ let memoryStore: DbStoreData = {
   settings: {},
   banners: [],
   users: [],
+  orders: [...initialOrders],
 };
-
-let memoryOrders: Order[] = [...initialOrders];
 
 function getLocalJsonPath(): string | null {
   try {
@@ -49,7 +49,10 @@ export function loadDbStore(): DbStoreData {
       const raw = fs.readFileSync(jsonPath, "utf-8");
       const parsed = JSON.parse(raw);
       if (parsed.products && Array.isArray(parsed.products)) {
-        return parsed as DbStoreData;
+        return {
+          ...parsed,
+          orders: parsed.orders && Array.isArray(parsed.orders) ? parsed.orders : initialOrders,
+        } as DbStoreData;
       }
     }
   } catch (err) {
@@ -74,6 +77,7 @@ export function saveDbStore(data: Partial<DbStoreData>) {
         settings: {},
         banners: [],
         users: [],
+        orders: [],
       };
       try {
         const raw = fs.readFileSync(jsonPath, "utf-8");
@@ -86,7 +90,7 @@ export function saveDbStore(data: Partial<DbStoreData>) {
         ...data,
       };
       fs.writeFileSync(jsonPath, JSON.stringify(updated, null, 2), "utf-8");
-      console.log(`[admin-app db] ✓ Successfully synced ${updated.products?.length || 0} products to disk: ${jsonPath}`);
+      console.log(`[admin-app db] ✓ Successfully synced db-store to disk: ${jsonPath}`);
     }
   } catch (err) {
     console.error("[admin-app db] Error writing db-store.json:", err);
@@ -94,9 +98,13 @@ export function saveDbStore(data: Partial<DbStoreData>) {
 }
 
 export function loadOrdersStore(): Order[] {
-  return memoryOrders;
+  const store = loadDbStore();
+  if (store.orders && Array.isArray(store.orders) && store.orders.length > 0) {
+    return store.orders;
+  }
+  return initialOrders;
 }
 
 export function saveOrdersStore(orders: Order[]) {
-  memoryOrders = [...orders];
+  saveDbStore({ orders });
 }
