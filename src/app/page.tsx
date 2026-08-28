@@ -681,16 +681,6 @@ export default function StandaloneAdminDashboard() {
                   ))}
                 </div>
 
-                <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "10px", padding: "0.5rem 0.75rem", fontSize: "0.6875rem", color: "#94a3b8", marginBottom: "1rem", lineHeight: 1.4, textAlign: "left" }}>
-                  💡 <strong>If showing dashes (`--- ---`):</strong> Tap directly on the dashes in Google Authenticator to unhide your 6 digits!
-                </div>
-
-                {waMfaMsg && (
-                  <div style={{ background: "#14532d", color: "#86efac", padding: "0.5rem", borderRadius: "8px", fontSize: "0.75rem", marginBottom: "1rem", fontWeight: 700 }}>
-                    {waMfaMsg}
-                  </div>
-                )}
-
                 {loginError && (
                   <div style={{ background: "#7f1d1d", color: "#fecaca", padding: "0.625rem", borderRadius: "10px", fontSize: "0.75rem", marginBottom: "1rem" }}>
                     {loginError}
@@ -709,31 +699,11 @@ export default function StandaloneAdminDashboard() {
                     color: "#fff",
                     fontWeight: 800,
                     fontSize: "0.9375rem",
-                    cursor: "pointer",
-                    marginBottom: "0.75rem",
+                    cursor: submittingAuth || totpDigits.join("").length !== 6 ? "not-allowed" : "pointer",
+                    opacity: submittingAuth || totpDigits.join("").length !== 6 ? 0.6 : 1,
                   }}
                 >
                   {submittingAuth ? "Verifying..." : "Unlock Admin Dashboard →"}
-                </button>
-
-                {/* Instant WhatsApp OTP Delivery Button */}
-                <button
-                  type="button"
-                  onClick={handleSendWaMfa}
-                  disabled={sendingWaMfa}
-                  style={{
-                    width: "100%",
-                    padding: "0.625rem",
-                    borderRadius: "10px",
-                    border: "1px solid #16a34a",
-                    background: "rgba(37, 211, 102, 0.15)",
-                    color: "#4ade80",
-                    fontWeight: 800,
-                    fontSize: "0.75rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  {sendingWaMfa ? "Sending Code to WhatsApp..." : "📲 Or Send 6-Digit Code to WhatsApp (+91 7979784087)"}
                 </button>
 
                 <div style={{ marginTop: "1rem" }}>
