@@ -80,6 +80,15 @@ export default function StandaloneAdminDashboard() {
   const [editPrice, setEditPrice] = useState<number>(0);
   const [editStock, setEditStock] = useState<number>(0);
   const [savingProduct, setSavingProduct] = useState(false);
+  const [productActionMsg, setProductActionMsg] = useState("");
+
+  const [editingProductFull, setEditingProductFull] = useState<Product | null>(null);
+  const [fullEditName, setFullEditName] = useState("");
+  const [fullEditCategory, setFullEditCategory] = useState("cat-membrane");
+  const [fullEditPrice, setFullEditPrice] = useState("");
+  const [fullEditMrp, setFullEditMrp] = useState("");
+  const [fullEditStock, setFullEditStock] = useState("");
+  const [fullEditStatus, setFullEditStatus] = useState<"active" | "draft" | "archived">("active");
 
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [newProdName, setNewProdName] = useState("");
@@ -346,20 +355,82 @@ export default function StandaloneAdminDashboard() {
     }
   };
 
+  const openFullEditModal = (p: Product) => {
+    setEditingProductFull(p);
+    setFullEditName(p.name);
+    setFullEditCategory(p.categoryId || "cat-membrane");
+    setFullEditPrice((p.sellingPrice / 100).toString());
+    setFullEditMrp((p.mrp / 100).toString());
+    setFullEditStock(p.stock.toString());
+    setFullEditStatus((p.status as "active" | "draft" | "archived") || "active");
+  };
+
   const handleSaveProductInline = async (id: string) => {
     setSavingProduct(true);
+    setProductActionMsg("");
     try {
-      await fetch("/api/products", {
+      const priceInPaise = Math.round(Number(editPrice) * 100);
+      const stockCount = Number(editStock);
+      const res = await fetch("/api/products", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id,
-          sellingPrice: Math.round(editPrice * 100),
-          stock: editStock,
+          sellingPrice: priceInPaise,
+          stock: stockCount,
         }),
       });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(json.error || "Failed to update product");
+        return;
+      }
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, sellingPrice: priceInPaise, stock: stockCount } : p))
+      );
       setEditingProductId(null);
+      setProductActionMsg(`✓ Saved! Price: ₹${editPrice} | Stock: ${stockCount}`);
+      setTimeout(() => setProductActionMsg(""), 3500);
       await loadDashboardData();
+    } catch {
+      alert("Network error updating product");
+    } finally {
+      setSavingProduct(false);
+    }
+  };
+
+  const handleSaveProductFull = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProductFull) return;
+    setSavingProduct(true);
+    try {
+      const priceInPaise = Math.round(Number(fullEditPrice) * 100);
+      const mrpInPaise = Math.round(Number(fullEditMrp) * 100);
+      const stockCount = Number(fullEditStock);
+      const res = await fetch("/api/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingProductFull.id,
+          name: fullEditName,
+          categoryId: fullEditCategory,
+          sellingPrice: priceInPaise,
+          mrp: mrpInPaise,
+          stock: stockCount,
+          status: fullEditStatus,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(json.error || "Failed to update product");
+        return;
+      }
+      setEditingProductFull(null);
+      setProductActionMsg(`✓ Product "${fullEditName}" updated successfully!`);
+      setTimeout(() => setProductActionMsg(""), 3500);
+      await loadDashboardData();
+    } catch {
+      alert("Network error updating product");
     } finally {
       setSavingProduct(false);
     }
@@ -980,21 +1051,32 @@ export default function StandaloneAdminDashboard() {
         {/* Tab 2: Products */}
         {activeTab === "products" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h2 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0 }}>Product Inventory &amp; Prices</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div>
+                <h2 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0 }}>Product Inventory &amp; Prices</h2>
+                <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "0.25rem 0 0" }}>
+                  Click <strong>✏️ Quick Edit</strong> or <strong>⚙️ Edit Details</strong> to update pricing &amp; stock instantly.
+                </p>
+              </div>
               <button onClick={() => setShowNewProductModal(true)} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 800, fontSize: "0.8125rem", cursor: "pointer" }}>
                 ➕ Add Product
               </button>
             </div>
+
+            {productActionMsg && (
+              <div style={{ background: "#14532d", border: "1px solid #22c55e", color: "#86efac", padding: "0.625rem 1rem", borderRadius: "10px", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "1rem" }}>
+                {productActionMsg}
+              </div>
+            )}
 
             <div style={{ background: "#1e293b", borderRadius: "16px", border: "1px solid #334155", overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.8125rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid #334155", color: "#94a3b8" }}>
                     <th style={{ padding: "0.875rem" }}>Product</th>
-                    <th style={{ padding: "0.875rem" }}>Price (₹)</th>
+                    <th style={{ padding: "0.875rem" }}>Selling Price (₹)</th>
                     <th style={{ padding: "0.875rem" }}>Stock</th>
-                    <th style={{ padding: "0.875rem", textAlign: "right" }}>Action</th>
+                    <th style={{ padding: "0.875rem", textAlign: "right" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1004,20 +1086,36 @@ export default function StandaloneAdminDashboard() {
                       <tr key={p.id} style={{ borderBottom: "1px solid #334155" }}>
                         <td style={{ padding: "0.875rem" }}>
                           <div style={{ fontWeight: 700, color: "#fff" }}>{p.name}</div>
-                          <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>SKU: {p.sku}</div>
+                          <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>SKU: {p.sku} | MRP: {formatPrice(p.mrp)}</div>
                         </td>
                         <td style={{ padding: "0.875rem" }}>
                           {isEditing ? (
-                            <input type="number" value={editPrice} onChange={(e) => setEditPrice(Number(e.target.value))} style={{ width: "80px", padding: "0.25rem", borderRadius: "4px", background: "#0f172a", border: "1px solid #38bdf8", color: "#fff" }} />
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                              <span style={{ color: "#94a3b8", fontWeight: 700 }}>₹</span>
+                              <input
+                                type="number"
+                                autoFocus
+                                value={editPrice}
+                                onChange={(e) => setEditPrice(Number(e.target.value))}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
+                                style={{ width: "90px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
+                              />
+                            </div>
                           ) : (
-                            <span style={{ fontWeight: 700, color: "#38bdf8" }}>{formatPrice(p.sellingPrice)}</span>
+                            <span style={{ fontWeight: 800, color: "#38bdf8", fontSize: "0.9375rem" }}>{formatPrice(p.sellingPrice)}</span>
                           )}
                         </td>
                         <td style={{ padding: "0.875rem" }}>
                           {isEditing ? (
-                            <input type="number" value={editStock} onChange={(e) => setEditStock(Number(e.target.value))} style={{ width: "60px", padding: "0.25rem", borderRadius: "4px", background: "#0f172a", border: "1px solid #38bdf8", color: "#fff" }} />
+                            <input
+                              type="number"
+                              value={editStock}
+                              onChange={(e) => setEditStock(Number(e.target.value))}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
+                              style={{ width: "70px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
+                            />
                           ) : (
-                            <span style={{ background: "#14532d", color: "#86efac", padding: "0.2rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800 }}>
+                            <span style={{ background: p.stock > 10 ? "#14532d" : "#7f1d1d", color: p.stock > 10 ? "#86efac" : "#fca5a5", padding: "0.2rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800 }}>
                               {p.stock} units
                             </span>
                           )}
@@ -1025,13 +1123,20 @@ export default function StandaloneAdminDashboard() {
                         <td style={{ padding: "0.875rem", textAlign: "right" }}>
                           {isEditing ? (
                             <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
-                              <button onClick={() => handleSaveProductInline(p.id)} disabled={savingProduct} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "4px", padding: "0.25rem 0.5rem", cursor: "pointer", fontWeight: 700 }}>Save</button>
-                              <button onClick={() => setEditingProductId(null)} style={{ background: "#475569", color: "#fff", border: "none", borderRadius: "4px", padding: "0.25rem 0.5rem", cursor: "pointer" }}>✕</button>
+                              <button onClick={() => handleSaveProductInline(p.id)} disabled={savingProduct} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.75rem", cursor: "pointer", fontWeight: 800 }}>
+                                {savingProduct ? "..." : "✓ Save"}
+                              </button>
+                              <button onClick={() => setEditingProductId(null)} style={{ background: "#475569", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.5rem", cursor: "pointer" }}>✕</button>
                             </div>
                           ) : (
-                            <button onClick={() => { setEditingProductId(p.id); setEditPrice(Math.round(p.sellingPrice / 100)); setEditStock(p.stock); }} style={{ background: "#334155", color: "#38bdf8", border: "none", borderRadius: "6px", padding: "0.25rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
-                              ✏️ Edit
-                            </button>
+                            <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
+                              <button onClick={() => { setEditingProductId(p.id); setEditPrice(Math.round(p.sellingPrice / 100)); setEditStock(p.stock); }} style={{ background: "#334155", color: "#38bdf8", border: "none", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
+                                ✏️ Quick Edit
+                              </button>
+                              <button onClick={() => openFullEditModal(p)} style={{ background: "#1e293b", color: "#cbd5e1", border: "1px solid #475569", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
+                                ⚙️ Edit Details
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -1215,6 +1320,51 @@ export default function StandaloneAdminDashboard() {
               </div>
               <button type="submit" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "none", background: "#38bdf8", color: "#0f172a", fontWeight: 800, cursor: "pointer" }}>
                 Save Coupon →
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Full Product Edit */}
+      {editingProductFull && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 100 }}>
+          <div style={{ background: "#1e293b", border: "1px solid #475569", borderRadius: "20px", maxWidth: "480px", width: "100%", padding: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h3 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0, color: "#fff" }}>⚙️ Edit Product: {editingProductFull.sku}</h3>
+              <button onClick={() => setEditingProductFull(null)} style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer" }}>✕</button>
+            </div>
+            <form onSubmit={handleSaveProductFull}>
+              <div style={{ marginBottom: "0.75rem" }}>
+                <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Product Name *</label>
+                <input required value={fullEditName} onChange={(e) => setFullEditName(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontWeight: 700 }} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Selling Price (₹) *</label>
+                  <input required type="number" step="any" value={fullEditPrice} onChange={(e) => setFullEditPrice(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #38bdf8", color: "#38bdf8", fontWeight: 800 }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>MRP (₹)</label>
+                  <input required type="number" step="any" value={fullEditMrp} onChange={(e) => setFullEditMrp(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }} />
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Live Stock *</label>
+                  <input required type="number" value={fullEditStock} onChange={(e) => setFullEditStock(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontWeight: 700 }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Status</label>
+                  <select value={fullEditStatus} onChange={(e) => setFullEditStatus(e.target.value as "active" | "draft" | "archived")} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }}>
+                    <option value="active">Active (Visible)</option>
+                    <option value="draft">Draft (Hidden)</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" disabled={savingProduct} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "none", background: "#22c55e", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
+                {savingProduct ? "Saving Updates..." : "✓ Save Product Changes"}
               </button>
             </form>
           </div>

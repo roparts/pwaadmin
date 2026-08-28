@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-session";
 import { loadDbStore, saveDbStore } from "@/lib/db";
+import { proxyToBackend } from "@/lib/api-client";
 import type { Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -82,6 +83,17 @@ export async function POST(request: NextRequest) {
   products.unshift(newProd);
   saveDbStore({ products });
 
+  try {
+    if (process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL) {
+      await proxyToBackend("/admin/products", {
+        method: "POST",
+        body: JSON.stringify(newProd),
+      });
+    }
+  } catch (err) {
+    console.warn("Proxying new product to central backend failed:", err);
+  }
+
   return NextResponse.json({ success: true, data: { product: newProd, message: "Product created!" } });
 }
 
@@ -116,5 +128,22 @@ export async function PUT(request: NextRequest) {
   products[idx] = updated;
   saveDbStore({ products });
 
-  return NextResponse.json({ success: true, data: { product: updated, message: "Product updated across database!" } });
+  try {
+    if (process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL) {
+      await proxyToBackend("/admin/products", {
+        method: "PUT",
+        body: JSON.stringify({
+          id: body.id,
+          sellingPrice: updated.sellingPrice,
+          mrp: updated.mrp,
+          stock: updated.stock,
+          status: updated.status,
+        }),
+      });
+    }
+  } catch (err) {
+    console.warn("Proxying product update to central backend failed:", err);
+  }
+
+  return NextResponse.json({ success: true, data: { product: updated, message: "Product updated successfully!" } });
 }
