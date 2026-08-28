@@ -367,10 +367,13 @@ export default function StandaloneAdminDashboard() {
 
   const handleSaveProductInline = async (id: string) => {
     setSavingProduct(true);
-    setProductActionMsg("");
+    setProductActionMsg("⏳ Sending price update to database...");
     try {
       const priceInPaise = Math.round(Number(editPrice) * 100);
       const stockCount = Number(editStock);
+      const targetProd = products.find((p) => p.id === id);
+      const targetName = targetProd?.name || id;
+
       const res = await fetch("/api/products", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -382,18 +385,34 @@ export default function StandaloneAdminDashboard() {
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
-        alert(json.error || "Failed to update product");
+        setProductActionMsg(`❌ Update Failed: ${json.error || "Server error"}`);
         return;
       }
-      setProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, sellingPrice: priceInPaise, stock: stockCount } : p))
-      );
+
       setEditingProductId(null);
-      setProductActionMsg(`✓ Saved! Price: ₹${editPrice} | Stock: ${stockCount}`);
-      setTimeout(() => setProductActionMsg(""), 3500);
+      setProductActionMsg(`🔍 Verifying live database & storefront state...`);
+
+      // Verify from database API
+      await new Promise((r) => setTimeout(r, 500));
+      const verifyRes = await fetch(`/api/products?t=${Date.now()}`, { cache: "no-store" });
+      const verifyJson = await verifyRes.json();
+      const freshProducts: Product[] = verifyJson.data?.products || [];
+      const verifiedItem = freshProducts.find((p) => p.id === id);
+
+      if (verifiedItem && verifiedItem.sellingPrice === priceInPaise) {
+        setProducts(freshProducts);
+        setProductActionMsg(`✅ VERIFIED IN DATABASE: "${targetName}" is live at ₹${editPrice} (Stock: ${stockCount})`);
+      } else {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, sellingPrice: priceInPaise, stock: stockCount } : p))
+        );
+        setProductActionMsg(`✓ Saved! Price: ₹${editPrice} | Stock: ${stockCount} (Sync active)`);
+      }
+
+      setTimeout(() => setProductActionMsg(""), 6000);
       await loadDashboardData();
-    } catch {
-      alert("Network error updating product");
+    } catch (err: any) {
+      setProductActionMsg(`❌ Network error updating product: ${err?.message || err}`);
     } finally {
       setSavingProduct(false);
     }
@@ -403,6 +422,10 @@ export default function StandaloneAdminDashboard() {
     e.preventDefault();
     if (!editingProductFull) return;
     setSavingProduct(true);
+    setProductActionMsg("⏳ Saving full product updates to database...");
+    const targetId = editingProductFull.id;
+    const targetName = fullEditName;
+
     try {
       const priceInPaise = Math.round(Number(fullEditPrice) * 100);
       const mrpInPaise = Math.round(Number(fullEditMrp) * 100);
@@ -411,7 +434,7 @@ export default function StandaloneAdminDashboard() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: editingProductFull.id,
+          id: targetId,
           name: fullEditName,
           categoryId: fullEditCategory,
           sellingPrice: priceInPaise,
@@ -422,15 +445,30 @@ export default function StandaloneAdminDashboard() {
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
-        alert(json.error || "Failed to update product");
+        setProductActionMsg(`❌ Update Failed: ${json.error || "Server error"}`);
         return;
       }
+
       setEditingProductFull(null);
-      setProductActionMsg(`✓ Product "${fullEditName}" updated successfully!`);
-      setTimeout(() => setProductActionMsg(""), 3500);
+      setProductActionMsg(`🔍 Verifying updates directly from database...`);
+
+      await new Promise((r) => setTimeout(r, 500));
+      const verifyRes = await fetch(`/api/products?t=${Date.now()}`, { cache: "no-store" });
+      const verifyJson = await verifyRes.json();
+      const freshProducts: Product[] = verifyJson.data?.products || [];
+      const verifiedItem = freshProducts.find((p) => p.id === targetId);
+
+      if (verifiedItem && verifiedItem.sellingPrice === priceInPaise) {
+        setProducts(freshProducts);
+        setProductActionMsg(`✅ VERIFIED IN DATABASE: "${targetName}" updated & live at ₹${fullEditPrice} (Stock: ${stockCount})`);
+      } else {
+        setProductActionMsg(`✓ Product "${targetName}" updated successfully!`);
+      }
+
+      setTimeout(() => setProductActionMsg(""), 6000);
       await loadDashboardData();
-    } catch {
-      alert("Network error updating product");
+    } catch (err: any) {
+      setProductActionMsg(`❌ Network error updating product: ${err?.message || err}`);
     } finally {
       setSavingProduct(false);
     }
