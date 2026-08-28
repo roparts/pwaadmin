@@ -82,6 +82,10 @@ export default function StandaloneAdminDashboard() {
   const [savingProduct, setSavingProduct] = useState(false);
   const [productActionMsg, setProductActionMsg] = useState("");
 
+  const [productStatusFilter, setProductStatusFilter] = useState<"all" | "active" | "draft" | "archived">("all");
+  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [productCategoryFilter, setProductCategoryFilter] = useState("all");
+
   const [editingProductFull, setEditingProductFull] = useState<Product | null>(null);
   const [fullEditName, setFullEditName] = useState("");
   const [fullEditCategory, setFullEditCategory] = useState("cat-membrane");
@@ -352,6 +356,31 @@ export default function StandaloneAdminDashboard() {
       }
     } finally {
       setSavingOrder(false);
+    }
+  };
+
+  const handleQuickStatusChange = async (id: string, newStatus: "active" | "draft" | "archived") => {
+    setSavingProduct(true);
+    setProductActionMsg(`⏳ Changing status to ${newStatus.toUpperCase()}...`);
+    try {
+      const res = await fetch("/api/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setProductActionMsg(`❌ Failed to update status: ${json.error || "Server error"}`);
+        return;
+      }
+      setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p)));
+      setProductActionMsg(`✅ Status updated to "${newStatus.toUpperCase()}"!`);
+      setTimeout(() => setProductActionMsg(""), 4500);
+      await loadDashboardData();
+    } catch (err: any) {
+      setProductActionMsg(`❌ Network error changing status: ${err?.message || err}`);
+    } finally {
+      setSavingProduct(false);
     }
   };
 
@@ -1057,104 +1086,344 @@ export default function StandaloneAdminDashboard() {
         )}
 
         {/* Tab 2: Products */}
-        {activeTab === "products" && (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
-              <div>
-                <h2 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0 }}>Product Inventory &amp; Prices</h2>
-                <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "0.25rem 0 0" }}>
-                  Click <strong>✏️ Quick Edit</strong> or <strong>⚙️ Edit Details</strong> to update pricing &amp; stock instantly.
-                </p>
-              </div>
-              <button onClick={() => setShowNewProductModal(true)} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 800, fontSize: "0.8125rem", cursor: "pointer" }}>
-                ➕ Add Product
-              </button>
-            </div>
+        {activeTab === "products" && (() => {
+          const countAll = products.length;
+          const countActive = products.filter((p) => (p.status || "active") === "active").length;
+          const countDraft = products.filter((p) => p.status === "draft").length;
+          const countArchived = products.filter((p) => p.status === "archived").length;
 
-            {productActionMsg && (
-              <div style={{ background: "#14532d", border: "1px solid #22c55e", color: "#86efac", padding: "0.625rem 1rem", borderRadius: "10px", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "1rem" }}>
-                {productActionMsg}
-              </div>
-            )}
+          const filteredProducts = products.filter((p) => {
+            const currentStatus = p.status || "active";
+            if (productStatusFilter !== "all" && currentStatus !== productStatusFilter) {
+              return false;
+            }
+            if (productCategoryFilter !== "all" && p.categoryId !== productCategoryFilter && p.mainCategory !== productCategoryFilter) {
+              return false;
+            }
+            if (productSearchQuery.trim()) {
+              const q = productSearchQuery.toLowerCase().trim();
+              const matchName = p.name.toLowerCase().includes(q);
+              const matchSku = p.sku.toLowerCase().includes(q);
+              const matchBrand = (p.brand || "").toLowerCase().includes(q);
+              if (!matchName && !matchSku && !matchBrand) return false;
+            }
+            return true;
+          });
 
-            <div style={{ background: "#1e293b", borderRadius: "16px", border: "1px solid #334155", overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.8125rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid #334155", color: "#94a3b8" }}>
-                    <th style={{ padding: "0.875rem" }}>Product</th>
-                    <th style={{ padding: "0.875rem" }}>Selling Price (₹)</th>
-                    <th style={{ padding: "0.875rem" }}>Stock</th>
-                    <th style={{ padding: "0.875rem", textAlign: "right" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((p) => {
-                    const isEditing = editingProductId === p.id;
-                    return (
-                      <tr key={p.id} style={{ borderBottom: "1px solid #334155" }}>
-                        <td style={{ padding: "0.875rem" }}>
-                          <div style={{ fontWeight: 700, color: "#fff" }}>{p.name}</div>
-                          <div style={{ fontSize: "0.6875rem", color: "#64748b" }}>SKU: {p.sku} | MRP: {formatPrice(p.mrp)}</div>
-                        </td>
-                        <td style={{ padding: "0.875rem" }}>
-                          {isEditing ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                              <span style={{ color: "#94a3b8", fontWeight: 700 }}>₹</span>
-                              <input
-                                type="number"
-                                autoFocus
-                                value={editPrice}
-                                onChange={(e) => setEditPrice(Number(e.target.value))}
-                                onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
-                                style={{ width: "90px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
-                              />
-                            </div>
-                          ) : (
-                            <span style={{ fontWeight: 800, color: "#38bdf8", fontSize: "0.9375rem" }}>{formatPrice(p.sellingPrice)}</span>
-                          )}
-                        </td>
-                        <td style={{ padding: "0.875rem" }}>
-                          {isEditing ? (
-                            <input
-                              type="number"
-                              value={editStock}
-                              onChange={(e) => setEditStock(Number(e.target.value))}
-                              onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
-                              style={{ width: "70px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
-                            />
-                          ) : (
-                            <span style={{ background: p.stock > 10 ? "#14532d" : "#7f1d1d", color: p.stock > 10 ? "#86efac" : "#fca5a5", padding: "0.2rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800 }}>
-                              {p.stock} units
-                            </span>
-                          )}
-                        </td>
-                        <td style={{ padding: "0.875rem", textAlign: "right" }}>
-                          {isEditing ? (
-                            <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
-                              <button onClick={() => handleSaveProductInline(p.id)} disabled={savingProduct} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.75rem", cursor: "pointer", fontWeight: 800 }}>
-                                {savingProduct ? "..." : "✓ Save"}
-                              </button>
-                              <button onClick={() => setEditingProductId(null)} style={{ background: "#475569", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.5rem", cursor: "pointer" }}>✕</button>
-                            </div>
-                          ) : (
-                            <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
-                              <button onClick={() => { setEditingProductId(p.id); setEditPrice(Math.round(p.sellingPrice / 100)); setEditStock(p.stock); }} style={{ background: "#334155", color: "#38bdf8", border: "none", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
-                                ✏️ Quick Edit
-                              </button>
-                              <button onClick={() => openFullEditModal(p)} style={{ background: "#1e293b", color: "#cbd5e1", border: "1px solid #475569", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
-                                ⚙️ Edit Details
-                              </button>
-                            </div>
+          return (
+            <div>
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0 }}>Product Inventory &amp; Prices</h2>
+                  <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "0.25rem 0 0" }}>
+                    Filter by status (Active, Draft, Archived), search, or quick-edit pricing and stock.
+                  </p>
+                </div>
+                <button onClick={() => setShowNewProductModal(true)} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "8px", padding: "0.5rem 1rem", fontWeight: 800, fontSize: "0.8125rem", cursor: "pointer" }}>
+                  ➕ Add Product
+                </button>
+              </div>
+
+              {/* Status Tabs / Pills */}
+              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  onClick={() => setProductStatusFilter("all")}
+                  style={{
+                    background: productStatusFilter === "all" ? "#38bdf8" : "#1e293b",
+                    color: productStatusFilter === "all" ? "#0f172a" : "#cbd5e1",
+                    border: `1px solid ${productStatusFilter === "all" ? "#38bdf8" : "#334155"}`,
+                    borderRadius: "20px",
+                    padding: "0.4rem 0.875rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  All ({countAll})
+                </button>
+
+                <button
+                  onClick={() => setProductStatusFilter("active")}
+                  style={{
+                    background: productStatusFilter === "active" ? "#10b981" : "#1e293b",
+                    color: productStatusFilter === "active" ? "#064e3b" : "#86efac",
+                    border: `1px solid ${productStatusFilter === "active" ? "#10b981" : "#166534"}`,
+                    borderRadius: "20px",
+                    padding: "0.4rem 0.875rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e" }}></span>
+                  Active ({countActive})
+                </button>
+
+                <button
+                  onClick={() => setProductStatusFilter("draft")}
+                  style={{
+                    background: productStatusFilter === "draft" ? "#f59e0b" : "#1e293b",
+                    color: productStatusFilter === "draft" ? "#451a03" : "#fde68a",
+                    border: `1px solid ${productStatusFilter === "draft" ? "#f59e0b" : "#854d0e"}`,
+                    borderRadius: "20px",
+                    padding: "0.4rem 0.875rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#eab308" }}></span>
+                  Draft ({countDraft})
+                </button>
+
+                <button
+                  onClick={() => setProductStatusFilter("archived")}
+                  style={{
+                    background: productStatusFilter === "archived" ? "#94a3b8" : "#1e293b",
+                    color: productStatusFilter === "archived" ? "#0f172a" : "#94a3b8",
+                    border: `1px solid ${productStatusFilter === "archived" ? "#94a3b8" : "#475569"}`,
+                    borderRadius: "20px",
+                    padding: "0.4rem 0.875rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#64748b" }}></span>
+                  Archived ({countArchived})
+                </button>
+              </div>
+
+              {/* Search & Category Filter Controls */}
+              <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+                <div style={{ flex: "1 1 240px", position: "relative" }}>
+                  <input
+                    type="text"
+                    value={productSearchQuery}
+                    onChange={(e) => setProductSearchQuery(e.target.value)}
+                    placeholder="🔍 Search product name, SKU, brand..."
+                    style={{
+                      width: "100%",
+                      padding: "0.55rem 0.875rem",
+                      borderRadius: "8px",
+                      background: "#0f172a",
+                      border: "1px solid #334155",
+                      color: "#fff",
+                      fontSize: "0.8125rem",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  {productSearchQuery && (
+                    <button
+                      onClick={() => setProductSearchQuery("")}
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "transparent",
+                        border: "none",
+                        color: "#94a3b8",
+                        cursor: "pointer",
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <select
+                  value={productCategoryFilter}
+                  onChange={(e) => setProductCategoryFilter(e.target.value)}
+                  style={{
+                    background: "#0f172a",
+                    border: "1px solid #334155",
+                    color: "#fff",
+                    borderRadius: "8px",
+                    padding: "0.55rem 0.875rem",
+                    fontSize: "0.8125rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="cat-membrane">Membranes</option>
+                  <option value="cat-pump">Booster Pumps</option>
+                  <option value="cat-filter">Filters &amp; Cartridges</option>
+                  <option value="cat-domestic">Domestic RO</option>
+                  <option value="cat-commercial">Commercial RO</option>
+                  <option value="cat-industrial">Industrial RO</option>
+                </select>
+              </div>
+
+              {productActionMsg && (
+                <div style={{ background: "#14532d", border: "1px solid #22c55e", color: "#86efac", padding: "0.625rem 1rem", borderRadius: "10px", fontSize: "0.8125rem", fontWeight: 700, marginBottom: "1rem" }}>
+                  {productActionMsg}
+                </div>
+              )}
+
+              {/* Table */}
+              <div style={{ background: "#1e293b", borderRadius: "16px", border: "1px solid #334155", overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.8125rem" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid #334155", color: "#94a3b8" }}>
+                      <th style={{ padding: "0.875rem" }}>Product</th>
+                      <th style={{ padding: "0.875rem" }}>Status</th>
+                      <th style={{ padding: "0.875rem" }}>Selling Price (₹)</th>
+                      <th style={{ padding: "0.875rem" }}>Stock</th>
+                      <th style={{ padding: "0.875rem", textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} style={{ padding: "2.5rem", textAlign: "center", color: "#94a3b8" }}>
+                          <div>No products found matching the selected filter.</div>
+                          {(productStatusFilter !== "all" || productSearchQuery || productCategoryFilter !== "all") && (
+                            <button
+                              onClick={() => { setProductStatusFilter("all"); setProductSearchQuery(""); setProductCategoryFilter("all"); }}
+                              style={{ marginTop: "0.75rem", background: "#38bdf8", color: "#0f172a", border: "none", borderRadius: "6px", padding: "0.35rem 0.875rem", fontWeight: 700, cursor: "pointer", fontSize: "0.75rem" }}
+                            >
+                              Reset Filters
+                            </button>
                           )}
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    ) : (
+                      filteredProducts.map((p) => {
+                        const isEditing = editingProductId === p.id;
+                        const currentStatus = (p.status as "active" | "draft" | "archived") || "active";
+                        return (
+                          <tr key={p.id} style={{ borderBottom: "1px solid #334155" }}>
+                            {/* Product Info */}
+                            <td style={{ padding: "0.875rem" }}>
+                              <div style={{ fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                {p.name}
+                              </div>
+                              <div style={{ fontSize: "0.6875rem", color: "#64748b", marginTop: "0.2rem" }}>
+                                SKU: {p.sku} | MRP: {formatPrice(p.mrp)}
+                              </div>
+                            </td>
+
+                            {/* Status Selector Badge */}
+                            <td style={{ padding: "0.875rem" }}>
+                              <select
+                                value={currentStatus}
+                                onChange={(e) => handleQuickStatusChange(p.id, e.target.value as "active" | "draft" | "archived")}
+                                disabled={savingProduct}
+                                style={{
+                                  background:
+                                    currentStatus === "active"
+                                      ? "#064e3b"
+                                      : currentStatus === "draft"
+                                      ? "#78350f"
+                                      : "#334155",
+                                  color:
+                                    currentStatus === "active"
+                                      ? "#86efac"
+                                      : currentStatus === "draft"
+                                      ? "#fde68a"
+                                      : "#cbd5e1",
+                                  border: `1px solid ${
+                                    currentStatus === "active"
+                                      ? "#22c55e"
+                                      : currentStatus === "draft"
+                                      ? "#eab308"
+                                      : "#64748b"
+                                  }`,
+                                  borderRadius: "12px",
+                                  padding: "0.25rem 0.5rem",
+                                  fontSize: "0.6875rem",
+                                  fontWeight: 800,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <option value="active" style={{ background: "#0f172a", color: "#86efac" }}>🟢 Active</option>
+                                <option value="draft" style={{ background: "#0f172a", color: "#fde68a" }}>🟡 Draft</option>
+                                <option value="archived" style={{ background: "#0f172a", color: "#cbd5e1" }}>⚪ Archived</option>
+                              </select>
+                            </td>
+
+                            {/* Selling Price */}
+                            <td style={{ padding: "0.875rem" }}>
+                              {isEditing ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                  <span style={{ color: "#94a3b8", fontWeight: 700 }}>₹</span>
+                                  <input
+                                    type="number"
+                                    autoFocus
+                                    value={editPrice}
+                                    onChange={(e) => setEditPrice(Number(e.target.value))}
+                                    onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
+                                    style={{ width: "90px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
+                                  />
+                                </div>
+                              ) : (
+                                <span style={{ fontWeight: 800, color: "#38bdf8", fontSize: "0.9375rem" }}>{formatPrice(p.sellingPrice)}</span>
+                              )}
+                            </td>
+
+                            {/* Stock */}
+                            <td style={{ padding: "0.875rem" }}>
+                              {isEditing ? (
+                                <input
+                                  type="number"
+                                  value={editStock}
+                                  onChange={(e) => setEditStock(Number(e.target.value))}
+                                  onKeyDown={(e) => { if (e.key === "Enter") handleSaveProductInline(p.id); }}
+                                  style={{ width: "70px", padding: "0.35rem 0.5rem", borderRadius: "6px", background: "#0f172a", border: "2px solid #38bdf8", color: "#fff", fontWeight: 800, fontSize: "0.875rem" }}
+                                />
+                              ) : (
+                                <span style={{ background: p.stock > 10 ? "#14532d" : "#7f1d1d", color: p.stock > 10 ? "#86efac" : "#fca5a5", padding: "0.2rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800 }}>
+                                  {p.stock} units
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Actions */}
+                            <td style={{ padding: "0.875rem", textAlign: "right" }}>
+                              {isEditing ? (
+                                <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
+                                  <button onClick={() => handleSaveProductInline(p.id)} disabled={savingProduct} style={{ background: "#22c55e", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.75rem", cursor: "pointer", fontWeight: 800 }}>
+                                    {savingProduct ? "..." : "✓ Save"}
+                                  </button>
+                                  <button onClick={() => setEditingProductId(null)} style={{ background: "#475569", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.5rem", cursor: "pointer" }}>✕</button>
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
+                                  <button onClick={() => { setEditingProductId(p.id); setEditPrice(Math.round(p.sellingPrice / 100)); setEditStock(p.stock); }} style={{ background: "#334155", color: "#38bdf8", border: "none", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
+                                    ✏️ Quick Edit
+                                  </button>
+                                  <button onClick={() => openFullEditModal(p)} style={{ background: "#1e293b", color: "#cbd5e1", border: "1px solid #475569", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
+                                    ⚙️ Edit Details
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Tab 3: Coupons */}
         {activeTab === "coupons" && (

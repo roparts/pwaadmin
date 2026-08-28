@@ -25,11 +25,15 @@ let memoryOrders: Order[] = [...initialOrders];
 
 function getLocalJsonPath(): string | null {
   try {
-    // 1. When running admin-app inside the workspace root (port 3001)
+    // 1. When running admin-app alongside main-app
+    const siblingPath = path.resolve(process.cwd(), "..", "main-app", "src", "data", "db-store.json");
+    if (fs.existsSync(siblingPath)) return siblingPath;
+
+    // 2. When running admin-app inside the workspace root (port 3001)
     const rootPath = path.resolve(process.cwd(), "..", "src", "data", "db-store.json");
     if (fs.existsSync(rootPath)) return rootPath;
 
-    // 2. When running at root
+    // 3. When running at root
     const cwdPath = path.resolve(process.cwd(), "src", "data", "db-store.json");
     if (fs.existsSync(cwdPath)) return cwdPath;
   } catch {
