@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-session";
 import { loadDbStore, loadOrdersStore } from "@/lib/db";
+import { proxyToBackend } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Admin session required" }, { status: 401 });
   }
 
+  // 1. Try to fetch live analytics from central backend
+  try {
+    const res = await proxyToBackend("/admin/analytics");
+    if (res.ok) {
+      const liveData = await res.json();
+      if (liveData?.data) {
+        return NextResponse.json(liveData);
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch live analytics from backend proxy, using local store:", err);
+  }
+
+  // 2. Fallback to calculating from local store
   const store = loadDbStore();
   const orders = loadOrdersStore();
   const products = store.products || [];

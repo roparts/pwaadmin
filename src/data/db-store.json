@@ -1,0 +1,2069 @@
+{
+  "products": [
+    {
+      "id": "prod_mti5z67t",
+      "sku": "RP-MTI5Z67T",
+      "name": "adapter",
+      "slug": "adapter",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "sellingPrice": 250000,
+      "mrp": 89900,
+      "stock": 50,
+      "status": "active",
+      "shortDescription": "adapter",
+      "longDescription": "adapter",
+      "mainCategory": "domestic",
+      "source": "Direct Factory Sourcing",
+      "specifications": {},
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "weight": 500,
+      "hsnCode": "84219900",
+      "gstRate": 18,
+      "lowStockThreshold": 10,
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "adapter | ROParts.in",
+      "seoDescription": "adapter",
+      "seoKeywords": [
+        "ro spare parts",
+        "water purifier spares"
+      ],
+      "relatedProductIds": [],
+      "createdAt": "2026-09-01T04:25:28.121Z",
+      "updatedAt": "2026-09-01T04:30:54.301Z"
+    },
+    {
+      "id": "prod_mtcwohmp",
+      "sku": "RP-MTCWOHMP",
+      "name": "ubuyb",
+      "slug": "ubuyb",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "sellingPrice": 45000,
+      "mrp": 50000,
+      "stock": 50,
+      "status": "active",
+      "shortDescription": "ubuyb",
+      "longDescription": "ubuyb",
+      "mainCategory": "domestic",
+      "source": "Direct Factory Sourcing",
+      "specifications": {},
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "weight": 500,
+      "hsnCode": "84219900",
+      "gstRate": 18,
+      "lowStockThreshold": 10,
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "ubuyb | ROParts.in",
+      "seoDescription": "ubuyb",
+      "seoKeywords": [
+        "ro spare parts",
+        "water purifier spares"
+      ],
+      "relatedProductIds": [],
+      "createdAt": "2026-08-28T12:06:22.273Z",
+      "updatedAt": "2026-08-28T12:20:31.415Z"
+    },
+    {
+      "id": "prod-001",
+      "sku": "RP-MEM-75",
+      "name": "RO Membrane 75 GPD (Domestic)",
+      "slug": "ro-membrane-75-gpd",
+      "mainCategory": "domestic",
+      "shortDescription": "75 GPD TFC RO membrane for domestic water purifiers.",
+      "longDescription": "High-rejection 75 GPD thin-film composite (TFC) reverse osmosis membrane. Compatible with most domestic RO purifiers including Kent, Aquaguard, Livpure, and Pureit systems. Delivers consistent water purification with 95%+ TDS rejection rate. Recommended replacement every 12-18 months depending on input water quality.",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=800&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specifications": {
+        "Capacity": "75 GPD",
+        "Type": "TFC (Thin Film Composite)",
+        "Rejection Rate": "95%+",
+        "Operating Pressure": "40-80 PSI",
+        "Max Temperature": "45°C",
+        "pH Range": "2-11",
+        "Size": "1812 (Standard)"
+      },
+      "compatibility": [
+        "Kent Grand Plus",
+        "Kent Supreme",
+        "Aquaguard Enhance",
+        "Livpure Glo",
+        "Pureit Classic",
+        "Most domestic 1812 membrane systems"
+      ],
+      "weight": 250,
+      "dimensions": {
+        "l": 30,
+        "w": 5,
+        "h": 5
+      },
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 3500,
+      "mrp": 79900,
+      "stock": 15,
+      "lowStockThreshold": 20,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "RO Membrane 75 GPD - Domestic RO | ROParts.in",
+      "seoDescription": "Buy 75 GPD domestic RO membrane online. High rejection TFC membrane compatible with Kent, Aquaguard, Livpure. Factory-direct pricing.",
+      "seoKeywords": [
+        "ro membrane",
+        "75 gpd membrane",
+        "domestic ro membrane",
+        "water purifier membrane"
+      ],
+      "relatedProductIds": [
+        "prod-002",
+        "prod-005",
+        "prod-009"
+      ],
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2026-09-01T04:30:34.888Z"
+    },
+    {
+      "id": "prod-002",
+      "sku": "RP-MEM-100",
+      "name": "RO Membrane 100 GPD (Domestic)",
+      "slug": "ro-membrane-100-gpd",
+      "mainCategory": "domestic",
+      "shortDescription": "100 GPD TFC RO membrane for high-output domestic purifiers.",
+      "longDescription": "High-capacity 100 GPD thin-film composite reverse osmosis membrane. Ideal for families with higher water consumption. Compatible with most domestic RO systems using standard 1812 membrane size. Provides excellent TDS rejection above 96%.",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Membrane+100GPD"
+      ],
+      "specifications": {
+        "Capacity": "100 GPD",
+        "Type": "TFC (Thin Film Composite)",
+        "Rejection Rate": "96%+",
+        "Operating Pressure": "40-100 PSI",
+        "Max Temperature": "45°C",
+        "pH Range": "2-11",
+        "Size": "1812 (Standard)"
+      },
+      "compatibility": [
+        "Kent Grand Plus",
+        "Kent Supreme Extra",
+        "Aquaguard Aura",
+        "Livpure Bolt+",
+        "Most domestic RO systems"
+      ],
+      "weight": 260,
+      "dimensions": {
+        "l": 30,
+        "w": 5,
+        "h": 5
+      },
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 55000,
+      "mrp": 109900,
+      "stock": 120,
+      "lowStockThreshold": 15,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": false,
+      "seoTitle": "RO Membrane 100 GPD - Domestic RO | ROParts.in",
+      "seoDescription": "Buy 100 GPD domestic RO membrane. High-capacity TFC membrane for purifiers. Direct sourcing, competitive pricing.",
+      "seoKeywords": [
+        "100 gpd membrane",
+        "ro membrane 100 gpd",
+        "high capacity ro membrane"
+      ],
+      "relatedProductIds": [
+        "prod-001",
+        "prod-005"
+      ],
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-003",
+      "sku": "RP-MEM-80",
+      "name": "RO Membrane 80 GPD (Domestic)",
+      "slug": "ro-membrane-80-gpd",
+      "mainCategory": "domestic",
+      "shortDescription": "80 GPD membrane for standard domestic RO water purifiers.",
+      "longDescription": "Reliable 80 GPD TFC reverse osmosis membrane. A balanced option between 75 and 100 GPD, suitable for average household consumption. Works with standard 1812 housing.",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Membrane+80GPD"
+      ],
+      "specifications": {
+        "Capacity": "80 GPD",
+        "Type": "TFC",
+        "Rejection Rate": "95%+",
+        "Operating Pressure": "40-80 PSI",
+        "Size": "1812 (Standard)"
+      },
+      "compatibility": [
+        "Kent Pearl",
+        "Aquaguard Enhance",
+        "Most domestic RO systems"
+      ],
+      "weight": 255,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 49900,
+      "mrp": 95000,
+      "stock": 80,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "RO Membrane 80 GPD Domestic | ROParts.in",
+      "seoDescription": "Buy 80 GPD RO membrane online. Quality TFC membrane at factory-direct price.",
+      "seoKeywords": [
+        "80 gpd membrane",
+        "ro membrane 80 gpd"
+      ],
+      "relatedProductIds": [
+        "prod-001",
+        "prod-002"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-005",
+      "sku": "RP-FLT-SED10",
+      "name": "Sediment Filter 10\" (Domestic)",
+      "slug": "sediment-filter-10-inch",
+      "mainCategory": "domestic",
+      "shortDescription": "10\" PP sediment filter cartridge, 5 micron.",
+      "longDescription": "Standard 10-inch sediment filter cartridge with 5 micron filtration. Removes sand, silt, dirt, and rust particles. First stage pre-filter in domestic RO systems.",
+      "categoryId": "cat-filters",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2d3748/ffffff?text=Sediment+Filter"
+      ],
+      "specifications": {
+        "Size": "10\" standard",
+        "Micron": "5 micron",
+        "Material": "Polypropylene (PP)",
+        "Flow Rate": "2-4 LPM",
+        "Max Temperature": "52°C",
+        "Replacement Cycle": "3-6 months"
+      },
+      "compatibility": [
+        "All standard 10\" filter housings",
+        "Kent",
+        "Aquaguard",
+        "Livpure",
+        "Pureit"
+      ],
+      "weight": 120,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 8900,
+      "mrp": 19900,
+      "stock": 500,
+      "lowStockThreshold": 50,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": true,
+      "seoTitle": "Sediment Filter 10 inch 5 Micron | ROParts.in",
+      "seoDescription": "Buy 10 inch sediment filter cartridge. 5 micron PP filter for RO pre-filtration.",
+      "seoKeywords": [
+        "sediment filter",
+        "pp filter",
+        "ro pre filter"
+      ],
+      "relatedProductIds": [
+        "prod-006",
+        "prod-007",
+        "prod-008"
+      ],
+      "createdAt": "2024-01-20T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-006",
+      "sku": "RP-FLT-SPUN10",
+      "name": "PP Spun Filter 10\" (Domestic)",
+      "slug": "pp-spun-filter-10-inch",
+      "mainCategory": "domestic",
+      "shortDescription": "10\" PP spun melt-blown filter, 1 micron.",
+      "longDescription": "High-quality 10-inch spun polypropylene filter with 1 micron filtration for fine particle removal. Gradient density design traps particles throughout the filter depth.",
+      "categoryId": "cat-filters",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://images.unsplash.com/photo-1584771145729-0bd9fda6529b?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specifications": {
+        "Size": "10\" standard",
+        "Micron": "1 micron",
+        "Material": "Melt-blown Polypropylene",
+        "Flow Rate": "2-3 LPM",
+        "Replacement Cycle": "3-6 months"
+      },
+      "compatibility": [
+        "All standard 10\" filter housings"
+      ],
+      "weight": 130,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 6900,
+      "mrp": 18000,
+      "stock": 400,
+      "lowStockThreshold": 40,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "PP Spun Filter 10 inch 1 Micron | ROParts.in",
+      "seoDescription": "Buy 10 inch PP spun filter. 1 micron melt-blown polypropylene for RO purifiers.",
+      "seoKeywords": [
+        "pp spun filter",
+        "1 micron filter",
+        "melt blown filter"
+      ],
+      "relatedProductIds": [
+        "prod-005",
+        "prod-007"
+      ],
+      "createdAt": "2024-01-20T10:00:00Z",
+      "updatedAt": "2026-08-27T19:02:10.931Z"
+    },
+    {
+      "id": "prod-007",
+      "sku": "RP-FLT-CTO10",
+      "name": "CTO Carbon Block Filter 10\" (Domestic)",
+      "slug": "cto-carbon-block-filter-10-inch",
+      "mainCategory": "domestic",
+      "shortDescription": "10\" activated carbon block (CTO) filter.",
+      "longDescription": "Coconut shell activated carbon block filter. Removes chlorine, taste, odor, and organic contaminants. Second or third stage filter in domestic RO systems.",
+      "categoryId": "cat-filters",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2d3748/ffffff?text=CTO+Carbon+Filter"
+      ],
+      "specifications": {
+        "Size": "10\" standard",
+        "Micron": "5 micron",
+        "Material": "Coconut Shell Activated Carbon",
+        "Chlorine Removal": "99%+",
+        "Replacement Cycle": "6-12 months"
+      },
+      "compatibility": [
+        "All standard 10\" filter housings"
+      ],
+      "weight": 200,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 14900,
+      "mrp": 29900,
+      "stock": 300,
+      "lowStockThreshold": 30,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": true,
+      "seoTitle": "CTO Carbon Block Filter 10 inch | ROParts.in",
+      "seoDescription": "Buy CTO carbon block filter. Coconut shell activated carbon for chlorine and odor removal.",
+      "seoKeywords": [
+        "cto filter",
+        "carbon block filter",
+        "activated carbon filter"
+      ],
+      "relatedProductIds": [
+        "prod-005",
+        "prod-006",
+        "prod-008"
+      ],
+      "createdAt": "2024-01-25T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-008",
+      "sku": "RP-FLT-INL-PC",
+      "name": "Inline Post Carbon Filter (Domestic)",
+      "slug": "inline-post-carbon-filter",
+      "mainCategory": "domestic",
+      "shortDescription": "Inline post-carbon filter for taste improvement.",
+      "longDescription": "Post-carbon inline filter for final stage polishing. Improves taste and removes residual odor after RO membrane. Uses coconut shell GAC (granular activated carbon).",
+      "categoryId": "cat-filters",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2d3748/ffffff?text=Inline+Post+Carbon"
+      ],
+      "specifications": {
+        "Type": "Inline T33",
+        "Material": "Coconut Shell GAC",
+        "Connection": "1/4\" push-fit",
+        "Flow Rate": "1-2 LPM",
+        "Replacement Cycle": "6-12 months"
+      },
+      "compatibility": [
+        "All domestic RO systems with 1/4\" connections"
+      ],
+      "weight": 150,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 12500,
+      "mrp": 25000,
+      "stock": 250,
+      "lowStockThreshold": 25,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "Inline Post Carbon Filter T33 | ROParts.in",
+      "seoDescription": "Buy inline post carbon filter. T33 GAC filter for taste improvement in RO purifiers.",
+      "seoKeywords": [
+        "inline filter",
+        "post carbon filter",
+        "t33 filter"
+      ],
+      "relatedProductIds": [
+        "prod-005",
+        "prod-007"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-009",
+      "sku": "RP-FLT-UF",
+      "name": "UF Membrane Filter (Domestic)",
+      "slug": "uf-membrane-filter",
+      "mainCategory": "domestic",
+      "shortDescription": "Ultra-filtration (UF) membrane for non-RO purification.",
+      "longDescription": "0.01 micron hollow fiber UF membrane. Ideal for areas with low TDS water where RO is not required. Removes bacteria and suspended solids while retaining minerals.",
+      "categoryId": "cat-filters",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2d3748/ffffff?text=UF+Membrane"
+      ],
+      "specifications": {
+        "Type": "Hollow Fiber UF",
+        "Micron": "0.01 micron",
+        "Pore Size": "10 nm",
+        "Flow Rate": "1-2 LPM",
+        "Replacement Cycle": "12-18 months"
+      },
+      "compatibility": [
+        "Most domestic UF/RO+UV+UF systems"
+      ],
+      "weight": 180,
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 35000,
+      "mrp": 59900,
+      "stock": 60,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "UF Membrane Filter | ROParts.in",
+      "seoDescription": "Buy UF membrane filter online. 0.01 micron hollow fiber ultra-filtration membrane.",
+      "seoKeywords": [
+        "uf membrane",
+        "ultra filtration membrane",
+        "uf filter"
+      ],
+      "relatedProductIds": [
+        "prod-001",
+        "prod-005"
+      ],
+      "createdAt": "2024-02-10T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-010",
+      "sku": "RP-PMP-75",
+      "name": "RO Booster Pump 75 GPD (Domestic)",
+      "slug": "ro-booster-pump-75-gpd",
+      "mainCategory": "domestic",
+      "shortDescription": "24V DC booster pump for 75 GPD RO systems.",
+      "longDescription": "Reliable 24V DC diaphragm booster pump designed for domestic 75 GPD RO systems. Self-priming with built-in check valve. Low noise operation.",
+      "categoryId": "cat-pumps",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80"
+      ],
+      "specifications": {
+        "Voltage": "24V DC",
+        "Suitable For": "75 GPD systems",
+        "Max Pressure": "100 PSI",
+        "Type": "Diaphragm",
+        "Self-priming": "Yes",
+        "Noise Level": "< 55 dB"
+      },
+      "compatibility": [
+        "Most 75 GPD domestic RO systems"
+      ],
+      "weight": 450,
+      "hsnCode": "8413709",
+      "gstRate": 18,
+      "sellingPrice": 54900,
+      "mrp": 99900,
+      "stock": 80,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "RO Booster Pump 75 GPD 24V DC | ROParts.in",
+      "seoDescription": "Buy 75 GPD RO booster pump. 24V DC diaphragm pump for domestic RO water purifiers.",
+      "seoKeywords": [
+        "ro pump",
+        "booster pump",
+        "75 gpd pump",
+        "ro pump price"
+      ],
+      "relatedProductIds": [
+        "prod-011",
+        "prod-012"
+      ],
+      "createdAt": "2024-01-20T10:00:00Z",
+      "updatedAt": "2026-08-27T19:02:10.991Z"
+    },
+    {
+      "id": "prod-011",
+      "sku": "RP-PMP-100",
+      "name": "RO Booster Pump 100 GPD (Domestic)",
+      "slug": "ro-booster-pump-100-gpd",
+      "mainCategory": "domestic",
+      "shortDescription": "24V DC booster pump for 100 GPD RO systems.",
+      "longDescription": "High-capacity 24V DC diaphragm pump for 100 GPD domestic systems. Delivers consistent pressure for optimal membrane performance.",
+      "categoryId": "cat-pumps",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2c5282/ffffff?text=Booster+Pump+100"
+      ],
+      "specifications": {
+        "Voltage": "24V DC",
+        "Suitable For": "100 GPD systems",
+        "Max Pressure": "120 PSI",
+        "Type": "Diaphragm",
+        "Self-priming": "Yes"
+      },
+      "compatibility": [
+        "Most 100 GPD domestic RO systems"
+      ],
+      "weight": 500,
+      "hsnCode": "8413709",
+      "gstRate": 18,
+      "sellingPrice": 75000,
+      "mrp": 140000,
+      "stock": 60,
+      "lowStockThreshold": 8,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "RO Booster Pump 100 GPD | ROParts.in",
+      "seoDescription": "Buy 100 GPD RO booster pump. 24V DC diaphragm pump at factory-direct price.",
+      "seoKeywords": [
+        "100 gpd pump",
+        "ro booster pump 100 gpd"
+      ],
+      "relatedProductIds": [
+        "prod-010",
+        "prod-012"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-012",
+      "sku": "RP-SMPS-24V",
+      "name": "SMPS Adapter 24V 2.5A (Domestic)",
+      "slug": "smps-adapter-24v-2-5a",
+      "mainCategory": "domestic",
+      "shortDescription": "24V 2.5A SMPS power adapter for RO booster pumps.",
+      "longDescription": "Switching mode power supply (SMPS) adapter rated at 24V DC, 2.5A output. Compatible with most domestic RO booster pumps. Includes power cord.",
+      "categoryId": "cat-pumps",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2c5282/ffffff?text=SMPS+24V"
+      ],
+      "specifications": {
+        "Input": "100-240V AC, 50/60Hz",
+        "Output": "24V DC, 2.5A",
+        "Power": "60W",
+        "Protection": "Over-voltage, Over-current, Short-circuit",
+        "Connector": "Standard barrel connector"
+      },
+      "compatibility": [
+        "Most 24V RO booster pumps"
+      ],
+      "weight": 300,
+      "hsnCode": "8504409",
+      "gstRate": 18,
+      "sellingPrice": 35000,
+      "mrp": 65000,
+      "stock": 200,
+      "lowStockThreshold": 20,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": true,
+      "seoTitle": "SMPS Adapter 24V 2.5A for RO Pump | ROParts.in",
+      "seoDescription": "Buy 24V 2.5A SMPS adapter for RO booster pumps. Reliable power supply at competitive price.",
+      "seoKeywords": [
+        "smps adapter",
+        "24v smps",
+        "ro pump adapter",
+        "smps for ro"
+      ],
+      "relatedProductIds": [
+        "prod-010",
+        "prod-011"
+      ],
+      "createdAt": "2024-01-25T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-014",
+      "sku": "RP-HSG-MEM",
+      "name": "Membrane Housing 1812 (Domestic)",
+      "slug": "membrane-housing-1812",
+      "mainCategory": "domestic",
+      "shortDescription": "Standard 1812 domestic RO membrane housing.",
+      "longDescription": "Durable 1812 membrane housing for standard domestic RO membranes. High-pressure rated with leak-proof end caps. 1/4\" push-fit connections.",
+      "categoryId": "cat-housings",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=Membrane+Housing"
+      ],
+      "specifications": {
+        "Size": "1812",
+        "Material": "High-grade Plastic",
+        "Connection": "1/4\" push-fit",
+        "Max Pressure": "100 PSI",
+        "End Caps": "Included"
+      },
+      "compatibility": [
+        "All 1812 size RO membranes"
+      ],
+      "weight": 350,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 22000,
+      "mrp": 45000,
+      "stock": 100,
+      "lowStockThreshold": 15,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "RO Membrane Housing 1812 | ROParts.in",
+      "seoDescription": "Buy 1812 RO membrane housing. Durable, leak-proof housing for standard membranes.",
+      "seoKeywords": [
+        "membrane housing",
+        "1812 housing",
+        "ro housing"
+      ],
+      "relatedProductIds": [
+        "prod-001",
+        "prod-002",
+        "prod-003"
+      ],
+      "createdAt": "2024-01-20T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-015",
+      "sku": "RP-HSG-FLT10",
+      "name": "Filter Housing 10\" Single (Domestic)",
+      "slug": "filter-housing-10-inch",
+      "mainCategory": "domestic",
+      "shortDescription": "10\" single-O-ring filter housing.",
+      "longDescription": "Standard 10-inch filter housing for sediment, carbon, and PP spun filter cartridges. Single O-ring design with wrench-removable sump. Wall-mount bracket included.",
+      "categoryId": "cat-housings",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=Filter+Housing"
+      ],
+      "specifications": {
+        "Size": "10\" standard",
+        "Connection": "1/4\" inlet/outlet",
+        "Material": "Food-grade PP",
+        "Max Pressure": "80 PSI",
+        "Bracket": "Included",
+        "Wrench": "Included"
+      },
+      "compatibility": [
+        "All standard 10\" filter cartridges"
+      ],
+      "weight": 400,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 18000,
+      "mrp": 35000,
+      "stock": 120,
+      "lowStockThreshold": 15,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "Filter Housing 10 inch | ROParts.in",
+      "seoDescription": "Buy 10 inch filter housing for RO water purifiers. Bracket and wrench included.",
+      "seoKeywords": [
+        "filter housing",
+        "10 inch housing",
+        "ro filter housing"
+      ],
+      "relatedProductIds": [
+        "prod-005",
+        "prod-006",
+        "prod-007"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-017",
+      "sku": "RP-SV-24V",
+      "name": "Solenoid Valve 24V DC (Domestic)",
+      "slug": "solenoid-valve-24v-dc",
+      "mainCategory": "domestic",
+      "shortDescription": "24V DC solenoid valve for auto-shutoff in RO systems.",
+      "longDescription": "Normally closed 24V DC solenoid valve for automatic water shutoff in RO purifiers. Prevents water wastage when the tank is full.",
+      "categoryId": "cat-valves",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=Solenoid+Valve"
+      ],
+      "specifications": {
+        "Voltage": "24V DC",
+        "Type": "Normally Closed",
+        "Connection": "1/4\" push-fit",
+        "Max Pressure": "100 PSI",
+        "Material": "Plastic body, rubber seal"
+      },
+      "compatibility": [
+        "All domestic RO systems"
+      ],
+      "weight": 80,
+      "hsnCode": "8481801",
+      "gstRate": 18,
+      "sellingPrice": 12000,
+      "mrp": 25000,
+      "stock": 200,
+      "lowStockThreshold": 25,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": true,
+      "seoTitle": "Solenoid Valve 24V DC for RO | ROParts.in",
+      "seoDescription": "Buy 24V solenoid valve for RO water purifiers. Auto-shutoff valve at competitive price.",
+      "seoKeywords": [
+        "solenoid valve",
+        "ro solenoid valve",
+        "24v solenoid valve"
+      ],
+      "relatedProductIds": [
+        "prod-018",
+        "prod-019"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-018",
+      "sku": "RP-FR-450",
+      "name": "Flow Restrictor 450 ML (Domestic)",
+      "slug": "flow-restrictor-450-ml",
+      "mainCategory": "domestic",
+      "shortDescription": "450 ML flow restrictor for 75 GPD RO systems.",
+      "longDescription": "Inline flow restrictor rated at 450 ML for 75 GPD RO systems. Maintains proper reject-to-product water ratio for optimal membrane performance.",
+      "categoryId": "cat-valves",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=Flow+Restrictor"
+      ],
+      "specifications": {
+        "Flow Rate": "450 ML",
+        "Suitable For": "75 GPD membranes",
+        "Connection": "1/4\" push-fit",
+        "Material": "Plastic with capillary tube"
+      },
+      "compatibility": [
+        "75 GPD RO systems"
+      ],
+      "weight": 20,
+      "hsnCode": "8481801",
+      "gstRate": 18,
+      "sellingPrice": 5500,
+      "mrp": 12000,
+      "stock": 300,
+      "lowStockThreshold": 30,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "Flow Restrictor 450 ML | ROParts.in",
+      "seoDescription": "Buy 450 ML flow restrictor for 75 GPD RO. Maintains optimal reject ratio.",
+      "seoKeywords": [
+        "flow restrictor",
+        "450 ml restrictor",
+        "ro flow restrictor"
+      ],
+      "relatedProductIds": [
+        "prod-017",
+        "prod-019"
+      ],
+      "createdAt": "2024-02-10T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-021",
+      "sku": "RP-FIT-ELBOW4",
+      "name": "1/4\" Push-Fit Elbow Connector (Domestic)",
+      "slug": "push-fit-elbow-connector-quarter-inch",
+      "mainCategory": "domestic",
+      "shortDescription": "1/4\" push-fit L-shaped elbow connector.",
+      "longDescription": "Quick-connect 1/4\" elbow (L-shape) connector for RO tubing. No tools required. Leak-proof push-fit design.",
+      "categoryId": "cat-fittings",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2d3748/ffffff?text=Elbow+Connector"
+      ],
+      "specifications": {
+        "Size": "1/4\" x 1/4\"",
+        "Type": "Push-fit Elbow",
+        "Material": "Food-grade PP",
+        "Max Pressure": "80 PSI"
+      },
+      "compatibility": [
+        "All 1/4\" RO tubing"
+      ],
+      "weight": 10,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 2500,
+      "mrp": 5000,
+      "stock": 1000,
+      "lowStockThreshold": 100,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "1/4\" Elbow Connector Push-Fit | ROParts.in",
+      "seoDescription": "Buy 1/4 inch push-fit elbow connector for RO tubing. Quick connect, no tools needed.",
+      "seoKeywords": [
+        "elbow connector",
+        "push fit elbow",
+        "ro connector"
+      ],
+      "relatedProductIds": [
+        "prod-022",
+        "prod-023"
+      ],
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-027",
+      "sku": "RP-TANK-8L",
+      "name": "RO Storage Tank 8 Litre (Domestic)",
+      "slug": "ro-storage-tank-8-litre",
+      "mainCategory": "domestic",
+      "shortDescription": "8-litre pressurized RO storage tank.",
+      "longDescription": "Food-grade pressurized storage tank for domestic RO water purifiers. 8-litre capacity with internal bladder.",
+      "categoryId": "cat-accessories",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=RO+Tank+8L"
+      ],
+      "specifications": {
+        "Capacity": "8 litres",
+        "Material": "Food-grade PE liner, steel shell",
+        "Connection": "1/4\" threaded"
+      },
+      "compatibility": [
+        "All domestic RO systems"
+      ],
+      "weight": 2500,
+      "dimensions": {
+        "l": 25,
+        "w": 25,
+        "h": 38
+      },
+      "hsnCode": "7310299",
+      "gstRate": 18,
+      "sellingPrice": 95000,
+      "mrp": 180000,
+      "stock": 40,
+      "lowStockThreshold": 5,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "RO Storage Tank 8 Litre | ROParts.in",
+      "seoDescription": "Buy 8 litre RO storage tank. Pressurized, food-grade, compatible with domestic RO.",
+      "seoKeywords": [
+        "ro tank",
+        "storage tank",
+        "8 litre tank"
+      ],
+      "relatedProductIds": [
+        "prod-019",
+        "prod-028"
+      ],
+      "createdAt": "2024-02-15T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-029",
+      "sku": "RP-KIT-INSTALL",
+      "name": "RO Installation Kit Complete (Domestic)",
+      "slug": "ro-installation-kit-complete",
+      "mainCategory": "domestic",
+      "shortDescription": "Complete installation kit for domestic RO systems.",
+      "longDescription": "Everything needed to install a domestic RO system. Includes 5m pipe, connectors, elbows, tee, drain clamp, inlet valve, teflon tape, and cable ties.",
+      "categoryId": "cat-accessories",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=Install+Kit"
+      ],
+      "specifications": {
+        "Includes": "Pipe (5m), 4x Elbow, 2x Tee, Inlet valve, Drain clamp, Teflon tape",
+        "Pipe Size": "1/4\""
+      },
+      "compatibility": [
+        "All domestic RO systems"
+      ],
+      "weight": 350,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 25000,
+      "mrp": 45000,
+      "stock": 100,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "RO Installation Kit Complete | ROParts.in",
+      "seoDescription": "Buy complete domestic RO installation kit at factory-direct pricing.",
+      "seoKeywords": [
+        "ro installation kit",
+        "ro kit"
+      ],
+      "relatedProductIds": [
+        "prod-021",
+        "prod-022"
+      ],
+      "createdAt": "2024-02-20T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-004",
+      "sku": "RP-MEM-4040",
+      "name": "Commercial RO Membrane 4040 (2200 GPD)",
+      "slug": "commercial-ro-membrane-4040",
+      "mainCategory": "commercial",
+      "shortDescription": "4040 commercial RO membrane for 250-500 LPH plants.",
+      "longDescription": "High-flow 4040 RO membrane element for commercial water purification plants. Delivers high salt rejection (99%+) under commercial operating conditions. Standard 4040 dimension fits standard commercial vessels.",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=4040+Commercial+Membrane"
+      ],
+      "specifications": {
+        "Capacity": "2200 GPD (Approx 350-500 LPH)",
+        "Type": "TFC Commercial",
+        "Rejection Rate": "99%+",
+        "Size": "4040 (4 inch dia x 40 inch length)",
+        "Operating Pressure": "150-225 PSI"
+      },
+      "compatibility": [
+        "Standard 4040 FRP / SS membrane housings",
+        "250 LPH, 500 LPH commercial RO plants"
+      ],
+      "weight": 3500,
+      "dimensions": {
+        "l": 102,
+        "w": 10,
+        "h": 10
+      },
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 450000,
+      "mrp": 750000,
+      "stock": 25,
+      "lowStockThreshold": 5,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "4040 Commercial RO Membrane | ROParts.in",
+      "seoDescription": "Buy 4040 commercial RO membrane for 250-500 LPH water treatment plants. Factory-direct pricing.",
+      "seoKeywords": [
+        "4040 membrane",
+        "commercial ro membrane",
+        "250 lph ro membrane"
+      ],
+      "relatedProductIds": [
+        "prod-016",
+        "prod-013"
+      ],
+      "createdAt": "2024-02-15T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-013",
+      "sku": "RP-PMP-VANE",
+      "name": "Rotary Vane Pump 50 LPH (Commercial)",
+      "slug": "vane-pump-50-lph",
+      "mainCategory": "commercial",
+      "shortDescription": "50 LPH brass rotary vane pump for light commercial RO.",
+      "longDescription": "Commercial rotary vane pump with brass head for 100-250 LPH commercial water purifiers. Engineered for continuous duty cycle and high discharge pressure.",
+      "categoryId": "cat-pumps",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2c5282/ffffff?text=Vane+Pump+50LPH"
+      ],
+      "specifications": {
+        "Voltage": "230V AC Single Phase",
+        "Flow Rate": "50 LPH",
+        "Max Pressure": "150 PSI",
+        "Type": "Rotary Vane",
+        "Head Material": "Forged Brass"
+      },
+      "compatibility": [
+        "100-250 LPH Commercial RO plants"
+      ],
+      "weight": 3200,
+      "hsnCode": "8413709",
+      "gstRate": 18,
+      "sellingPrice": 280000,
+      "mrp": 450000,
+      "stock": 15,
+      "lowStockThreshold": 3,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": false,
+      "seoTitle": "Vane Pump 50 LPH Commercial RO | ROParts.in",
+      "seoDescription": "Buy 50 LPH rotary vane pump for commercial RO systems. Brass head, reliable performance.",
+      "seoKeywords": [
+        "vane pump",
+        "commercial ro pump",
+        "50 lph pump"
+      ],
+      "relatedProductIds": [
+        "prod-004",
+        "prod-016"
+      ],
+      "createdAt": "2024-03-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-016",
+      "sku": "RP-HSG-4040",
+      "name": "4040 FRP Membrane Housing (Commercial)",
+      "slug": "membrane-housing-4040-frp",
+      "mainCategory": "commercial",
+      "shortDescription": "4040 FRP pressure vessel for commercial RO plants.",
+      "longDescription": "Fiber reinforced plastic (FRP) membrane pressure vessel designed for 4040 RO membranes. Rated up to 300 PSI with 3/4\" end ports for reliable commercial filtration.",
+      "categoryId": "cat-housings",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=4040+FRP+Housing"
+      ],
+      "specifications": {
+        "Size": "4040 Single Element",
+        "Material": "FRP (Fiber Reinforced Polymer)",
+        "Ports": "3/4\" Stainless Steel",
+        "Max Pressure": "300 PSI"
+      },
+      "compatibility": [
+        "All standard 4040 RO membrane elements"
+      ],
+      "weight": 5000,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 350000,
+      "mrp": 550000,
+      "stock": 10,
+      "lowStockThreshold": 2,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "4040 FRP Membrane Housing | ROParts.in",
+      "seoDescription": "Buy 4040 FRP membrane housing for commercial RO plants. 300 PSI pressure vessel.",
+      "seoKeywords": [
+        "4040 housing",
+        "commercial membrane housing",
+        "frp vessel"
+      ],
+      "relatedProductIds": [
+        "prod-004"
+      ],
+      "createdAt": "2024-03-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-020",
+      "sku": "RP-FS-HALL",
+      "name": "Commercial Flow Sensor & Totalizer",
+      "slug": "flow-sensor-hall-effect",
+      "mainCategory": "commercial",
+      "shortDescription": "Precision digital flow sensor for commercial RO plants.",
+      "longDescription": "Digital pulse output flow sensor for commercial RO control panels. Accurately measures permeate and reject flow rates for system diagnostics.",
+      "categoryId": "cat-valves",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=Flow+Sensor"
+      ],
+      "specifications": {
+        "Type": "Hall Effect Digital",
+        "Operating Voltage": "5-24V DC",
+        "Flow Range": "1-30 L/min",
+        "Connection": "1/2\" threaded"
+      },
+      "compatibility": [
+        "Commercial RO control panels and controllers"
+      ],
+      "weight": 120,
+      "hsnCode": "9026100",
+      "gstRate": 18,
+      "sellingPrice": 15000,
+      "mrp": 30000,
+      "stock": 100,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "Commercial Flow Sensor | ROParts.in",
+      "seoDescription": "Buy commercial flow sensor for RO water purifiers. Factory-direct pricing.",
+      "seoKeywords": [
+        "flow sensor",
+        "commercial flow meter"
+      ],
+      "relatedProductIds": [
+        "prod-004"
+      ],
+      "createdAt": "2024-03-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-031",
+      "sku": "RP-MEM-8040",
+      "name": "Industrial RO Membrane 8040 (High Rejection)",
+      "slug": "industrial-ro-membrane-8040",
+      "mainCategory": "industrial",
+      "shortDescription": "8040 industrial RO membrane element for 1000+ LPH plants.",
+      "longDescription": "Industrial high-capacity 8040 reverse osmosis membrane element with 400 sq ft active area. Delivers up to 10,500 GPD flow rate with 99.5% nominal salt rejection for industrial water treatment plants, boilers, and manufacturing facilities.",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=8040+Industrial+Membrane"
+      ],
+      "specifications": {
+        "Capacity": "10,500 GPD (Approx 1600 LPH)",
+        "Type": "Polyamide Thin-Film Composite",
+        "Rejection Rate": "99.5%",
+        "Size": "8040 (8 inch dia x 40 inch length)",
+        "Active Area": "400 sq ft",
+        "Max Operating Pressure": "600 PSI"
+      },
+      "compatibility": [
+        "Standard 8040 FRP pressure vessels",
+        "1000 LPH, 2000 LPH, 5000 LPH industrial RO plants"
+      ],
+      "weight": 16000,
+      "dimensions": {
+        "l": 102,
+        "w": 20,
+        "h": 20
+      },
+      "hsnCode": "8421990",
+      "gstRate": 18,
+      "sellingPrice": 1650000,
+      "mrp": 2400000,
+      "stock": 12,
+      "lowStockThreshold": 2,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "8040 Industrial RO Membrane | ROParts.in",
+      "seoDescription": "Buy 8040 industrial RO membrane for water treatment plants. 10,500 GPD capacity, 99.5% rejection.",
+      "seoKeywords": [
+        "8040 membrane",
+        "industrial ro membrane",
+        "1000 lph ro membrane"
+      ],
+      "relatedProductIds": [
+        "prod-032",
+        "prod-033"
+      ],
+      "createdAt": "2024-04-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-032",
+      "sku": "RP-HSG-8040-FRP",
+      "name": "8040 FRP Membrane Housing (Side Port 450 PSI)",
+      "slug": "membrane-housing-8040-frp-side-port",
+      "mainCategory": "industrial",
+      "shortDescription": "8040 FRP industrial pressure vessel with side ports.",
+      "longDescription": "Heavy-duty 8040 FRP membrane pressure vessel engineered for industrial RO plants. Side-port design rated to 450 PSI with stainless steel feed/reject ports.",
+      "categoryId": "cat-housings",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2a4365/ffffff?text=8040+FRP+Vessel"
+      ],
+      "specifications": {
+        "Size": "8040 1-Element",
+        "Material": "Fiber Reinforced Plastic (FRP)",
+        "Port Type": "Side Port (1.5 inch Feed / 1 inch Permeate)",
+        "Design Pressure": "450 PSI"
+      },
+      "compatibility": [
+        "All 8040 industrial RO membranes"
+      ],
+      "weight": 22000,
+      "hsnCode": "3917400",
+      "gstRate": 18,
+      "sellingPrice": 1250000,
+      "mrp": 1800000,
+      "stock": 8,
+      "lowStockThreshold": 2,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": false,
+      "seoTitle": "8040 FRP Pressure Vessel | ROParts.in",
+      "seoDescription": "Industrial 8040 FRP membrane housing. Side port 450 PSI rated for RO plants.",
+      "seoKeywords": [
+        "8040 frp housing",
+        "industrial pressure vessel",
+        "8040 membrane vessel"
+      ],
+      "relatedProductIds": [
+        "prod-031"
+      ],
+      "createdAt": "2024-04-01T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-033",
+      "sku": "RP-DOSE-06L",
+      "name": "Electronic Chemical Dosing Pump 0-6 LPH (Industrial)",
+      "slug": "electronic-dosing-pump-6-lph",
+      "mainCategory": "industrial",
+      "shortDescription": "Electronic diaphragm dosing pump for antiscalant / chlorine.",
+      "longDescription": "Adjustable 0-6 LPH electronic diaphragm dosing pump for industrial RO pretreatment. Ideal for precise dosing of antiscalant, sodium hypochlorite, and pH correction chemicals.",
+      "categoryId": "cat-pumps",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/2c5282/ffffff?text=Dosing+Pump+0-6LPH"
+      ],
+      "specifications": {
+        "Discharge Rate": "0-6 LPH (Adjustable stroke frequency)",
+        "Max Pressure": "5 Bar",
+        "Power": "230V AC, 50Hz, 30W",
+        "Head Material": "PTFE / PVDF / Polypropylene",
+        "Includes": "Suction & discharge tubing, foot valve, injection valve"
+      },
+      "compatibility": [
+        "All industrial & commercial RO plants for chemical dosing"
+      ],
+      "weight": 2800,
+      "hsnCode": "8413509",
+      "gstRate": 18,
+      "sellingPrice": 380000,
+      "mrp": 650000,
+      "stock": 20,
+      "lowStockThreshold": 3,
+      "status": "active",
+      "isFeatured": true,
+      "isBestseller": true,
+      "seoTitle": "Industrial Dosing Pump 0-6 LPH | ROParts.in",
+      "seoDescription": "Buy electronic dosing pump for antiscalant in RO plants. 0-6 LPH adjustable discharge.",
+      "seoKeywords": [
+        "dosing pump",
+        "antiscalant pump",
+        "industrial dosing pump"
+      ],
+      "relatedProductIds": [
+        "prod-031",
+        "prod-034"
+      ],
+      "createdAt": "2024-04-10T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-034",
+      "sku": "RP-ROTA-1500",
+      "name": "Industrial Panel Rotameter Flow Meter (100-1500 LPH)",
+      "slug": "industrial-panel-rotameter-1500-lph",
+      "mainCategory": "industrial",
+      "shortDescription": "Acrylic panel mount rotameter for permeate/reject flow.",
+      "longDescription": "High-clarity acrylic panel-mount rotameter with 100-1500 LPH measurement range. Stainless steel float and guide rod for accurate monitoring in industrial RO panels.",
+      "categoryId": "cat-valves",
+      "brand": "Drop Purity Parts",
+      "source": "Factory-direct sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=Rotameter+1500LPH"
+      ],
+      "specifications": {
+        "Range": "100 - 1500 LPH",
+        "Mounting": "Panel Mount",
+        "Connection": "1/2\" BSP Male / Female",
+        "Body": "Machined Acrylic Block",
+        "Float": "316 Stainless Steel",
+        "Max Pressure": "10 Bar"
+      },
+      "compatibility": [
+        "Industrial RO control panels"
+      ],
+      "weight": 650,
+      "hsnCode": "9026100",
+      "gstRate": 18,
+      "sellingPrice": 120000,
+      "mrp": 220000,
+      "stock": 35,
+      "lowStockThreshold": 5,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "Industrial Rotameter 1500 LPH | ROParts.in",
+      "seoDescription": "Buy panel mount rotameter 100-1500 LPH for industrial RO plants. Factory-direct.",
+      "seoKeywords": [
+        "rotameter",
+        "industrial flow meter",
+        "ro rotameter"
+      ],
+      "relatedProductIds": [
+        "prod-031",
+        "prod-033"
+      ],
+      "createdAt": "2024-04-10T10:00:00Z",
+      "updatedAt": "2024-08-20T10:00:00Z"
+    },
+    {
+      "id": "prod-mtcwohn0",
+      "sku": "RP-MTCWOHMP",
+      "name": "ubuyb",
+      "slug": "ubuyb",
+      "shortDescription": "ubuyb",
+      "longDescription": "ubuyb",
+      "mainCategory": "domestic",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity",
+      "source": "Direct Factory Sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "specifications": {},
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "weight": 500,
+      "hsnCode": "84219900",
+      "gstRate": 18,
+      "sellingPrice": 45000,
+      "mrp": 89900,
+      "stock": 50,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "ubuyb | ROParts.in",
+      "seoDescription": "ubuyb",
+      "seoKeywords": [
+        "ro spare parts",
+        "water purifier spares"
+      ],
+      "relatedProductIds": [],
+      "createdAt": "2026-08-28T12:06:22.285Z",
+      "updatedAt": "2026-08-28T12:06:22.285Z"
+    },
+    {
+      "id": "prod-mti5z76z",
+      "sku": "RP-MTI5Z67T",
+      "name": "adapter",
+      "slug": "adapter",
+      "shortDescription": "adapter",
+      "longDescription": "adapter",
+      "mainCategory": "domestic",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity",
+      "source": "Direct Factory Sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "specifications": {},
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "weight": 500,
+      "hsnCode": "84219900",
+      "gstRate": 18,
+      "sellingPrice": 20000,
+      "mrp": 89900,
+      "stock": 50,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "adapter | ROParts.in",
+      "seoDescription": "adapter",
+      "seoKeywords": [
+        "ro spare parts",
+        "water purifier spares"
+      ],
+      "relatedProductIds": [],
+      "createdAt": "2026-09-01T04:25:29.387Z",
+      "updatedAt": "2026-09-01T04:25:29.388Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-membrane",
+      "name": "RO Membranes",
+      "slug": "ro-membranes",
+      "description": "High-rejection RO membranes for domestic and commercial water purifiers. Available in 50, 75, 80, and 100 GPD capacities.",
+      "image": "https://placehold.co/400x300/1a365d/ffffff?text=RO+Membranes",
+      "sortOrder": 1,
+      "productCount": 4,
+      "seoTitle": "RO Membranes - Buy Online at Best Price | ROParts.in",
+      "seoDescription": "Shop quality RO membranes for domestic & commercial purifiers. 50 GPD to 100 GPD. Factory-direct pricing.",
+      "status": "active"
+    },
+    {
+      "id": "cat-filters",
+      "name": "Filters",
+      "slug": "filters",
+      "description": "Sediment filters, carbon filters, PP spun filters, CTO filters, and inline filters for all RO systems.",
+      "image": "https://placehold.co/400x300/2d3748/ffffff?text=Filters",
+      "sortOrder": 2,
+      "productCount": 5,
+      "seoTitle": "RO Filters - Sediment, Carbon, Inline | ROParts.in",
+      "seoDescription": "Buy RO filters online. Sediment, carbon, PP spun, CTO, and inline filters at factory-direct prices.",
+      "status": "active"
+    },
+    {
+      "id": "cat-pumps",
+      "name": "Pumps & SMPS",
+      "slug": "pumps-smps",
+      "description": "Booster pumps, diaphragm pumps, and SMPS power adapters for RO water purifiers.",
+      "image": "https://placehold.co/400x300/2c5282/ffffff?text=Pumps+%26+SMPS",
+      "sortOrder": 3,
+      "productCount": 4,
+      "seoTitle": "RO Pumps & SMPS Adapters | ROParts.in",
+      "seoDescription": "Shop RO booster pumps, diaphragm pumps, and SMPS adapters. Reliable, quality-checked components.",
+      "status": "active"
+    },
+    {
+      "id": "cat-housings",
+      "name": "Housings",
+      "slug": "housings",
+      "description": "Membrane housings, filter housings, and RO housing accessories for standard and commercial systems.",
+      "image": "https://placehold.co/400x300/2a4365/ffffff?text=Housings",
+      "sortOrder": 4,
+      "productCount": 3,
+      "seoTitle": "RO Housings - Membrane & Filter Housings | ROParts.in",
+      "seoDescription": "Buy RO membrane housings and filter housings online. Standard and commercial sizes available.",
+      "status": "active"
+    },
+    {
+      "id": "cat-valves",
+      "name": "Valves & Flow Control",
+      "slug": "valves-flow-control",
+      "description": "Solenoid valves, float valves, flow restrictors, and flow sensors for RO systems.",
+      "image": "https://placehold.co/400x300/1a365d/ffffff?text=Valves+%26+Flow",
+      "sortOrder": 5,
+      "productCount": 4,
+      "seoTitle": "RO Valves & Flow Control Components | ROParts.in",
+      "seoDescription": "Shop solenoid valves, float valves, flow restrictors, and sensors. Quality-checked RO components.",
+      "status": "active"
+    },
+    {
+      "id": "cat-fittings",
+      "name": "Fittings & Connectors",
+      "slug": "fittings-connectors",
+      "description": "Push-fit connectors, elbows, tees, pipes, and clamps for RO plumbing.",
+      "image": "https://placehold.co/400x300/2d3748/ffffff?text=Fittings",
+      "sortOrder": 6,
+      "productCount": 4,
+      "seoTitle": "RO Fittings & Connectors | ROParts.in",
+      "seoDescription": "Buy RO fittings, connectors, elbows, tees, and pipes online. Fast dispatch. Affordable pricing.",
+      "status": "active"
+    },
+    {
+      "id": "cat-electrical",
+      "name": "Electrical Components",
+      "slug": "electrical-components",
+      "description": "TDS controllers, UV systems, pressure switches, and electrical accessories for water purifiers.",
+      "image": "https://placehold.co/400x300/2c5282/ffffff?text=Electrical",
+      "sortOrder": 7,
+      "productCount": 3,
+      "seoTitle": "RO Electrical Components - TDS, UV, Switches | ROParts.in",
+      "seoDescription": "Shop TDS controllers, UV lamp systems, high/low pressure switches for RO water purifiers.",
+      "status": "active"
+    },
+    {
+      "id": "cat-accessories",
+      "name": "RO Accessories",
+      "slug": "ro-accessories",
+      "description": "Tanks, faucets, installation kits, and miscellaneous RO accessories.",
+      "image": "https://placehold.co/400x300/2a4365/ffffff?text=Accessories",
+      "sortOrder": 8,
+      "productCount": 3,
+      "seoTitle": "RO Accessories - Tanks, Faucets, Kits | ROParts.in",
+      "seoDescription": "Buy RO accessories — storage tanks, faucets, installation kits, and more at competitive prices.",
+      "status": "active"
+    }
+  ],
+  "coupons": [
+    {
+      "code": "WELCOME10",
+      "type": "percentage",
+      "value": 10,
+      "minOrder": 50000,
+      "maxDiscount": 20000,
+      "startDate": "2024-01-01T00:00:00Z",
+      "endDate": "2027-12-31T23:59:59Z",
+      "usageLimit": 1000,
+      "usedCount": 42,
+      "perCustomerLimit": 1,
+      "status": "active"
+    },
+    {
+      "code": "FLAT50",
+      "type": "fixed",
+      "value": 5000,
+      "minOrder": 100000,
+      "maxDiscount": 5000,
+      "startDate": "2024-06-01T00:00:00Z",
+      "endDate": "2027-12-31T23:59:59Z",
+      "usageLimit": 500,
+      "usedCount": 18,
+      "perCustomerLimit": 2,
+      "status": "active"
+    },
+    {
+      "code": "FILTER20",
+      "type": "percentage",
+      "value": 20,
+      "minOrder": 30000,
+      "maxDiscount": 15000,
+      "startDate": "2024-08-01T00:00:00Z",
+      "endDate": "2027-12-31T23:59:59Z",
+      "usageLimit": 200,
+      "usedCount": 5,
+      "perCustomerLimit": 1,
+      "applicableCategories": [
+        "cat-filters"
+      ],
+      "status": "active"
+    }
+  ],
+  "settings": {
+    "siteName": "ROParts.in",
+    "tagline": "Factory-Direct RO Parts. Reliable Quality. Better Pricing.",
+    "legalName": "Drop Technologies Private Limited",
+    "brandName": "Drop Purity Parts",
+    "cin": "U36000KA2026PTC219011",
+    "gstin": "29AAMCD6292Q1ZK",
+    "registeredLocation": "Naganathapura, Electronics City, Bengaluru, Karnataka, 560100",
+    "contactEmail": "support@roparts.in",
+    "contactPhone": "+91-XXXXXXXXXX",
+    "contactWhatsapp": "+91-XXXXXXXXXX",
+    "address": "Naganathapura, Electronics City, Bengaluru, Karnataka, 560100",
+    "freeShippingThreshold": 99900,
+    "flatShippingCharge": 7900,
+    "defaultMarginPercentage": 20,
+    "currency": "INR",
+    "socialLinks": {}
+  },
+  "banners": [
+    {
+      "id": "banner-1",
+      "title": "RO Parts Direct. Reliable Quality. Better Pricing.",
+      "subtitle": "Quality RO components sourced directly to give you competitive pricing without unnecessary middlemen.",
+      "image": "https://placehold.co/1200x500/1a365d/ffffff?text=ROParts.in+-+Factory+Direct+RO+Parts",
+      "link": "/ro-parts",
+      "sortOrder": 1,
+      "status": "active"
+    },
+    {
+      "id": "banner-2",
+      "title": "RO Membranes — From ₹449",
+      "subtitle": "75 GPD, 80 GPD, 100 GPD & commercial membranes in stock.",
+      "image": "https://placehold.co/1200x500/2c5282/ffffff?text=RO+Membranes+%E2%80%94+From+%E2%82%B9449",
+      "link": "/ro-parts/ro-membranes",
+      "sortOrder": 2,
+      "status": "active"
+    },
+    {
+      "id": "banner-3",
+      "title": "Factory-Direct Sourcing for Everyone",
+      "subtitle": "Direct factory pricing with no middleman markups.",
+      "image": "https://placehold.co/1200x500/2d3748/ffffff?text=Factory+Direct+Savings",
+      "link": "/ro-parts",
+      "sortOrder": 3,
+      "status": "active"
+    }
+  ],
+  "users": [
+    {
+      "userId": "usr_cust_001",
+      "name": "Vikram Sharma",
+      "email": "vikram@example.com",
+      "mobile": "9876543210",
+      "role": "CUSTOMER",
+      "passwordHash": "password123",
+      "addresses": [
+        {
+          "id": "addr_1",
+          "name": "Vikram Sharma",
+          "mobile": "9876543210",
+          "line1": "Flat 402, Green Glen Layout",
+          "line2": "Bellandur Outer Ring Road",
+          "landmark": "Near Bellandur Lake Signal",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560103",
+          "isDefault": false,
+          "type": "home"
+        },
+        {
+          "id": "addr_2",
+          "name": "Vikram RO Service Workshop",
+          "mobile": "9876543210",
+          "line1": "Shop 12, Ground Floor, Sector 2",
+          "line2": "HSR Layout Main Road",
+          "landmark": "Opposite BDA Complex",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560102",
+          "isDefault": false,
+          "type": "workshop"
+        },
+        {
+          "id": "addr_1787868115404_486",
+          "name": "Vicky RO Tech",
+          "mobile": "7979784087",
+          "line1": "Flat 402, Green Glen Layout",
+          "line2": "Bellandur Outer Ring Road",
+          "landmark": "Near Bellandur Lake Signal",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560103",
+          "isDefault": false,
+          "type": "workshop",
+          "latitude": 12.935241,
+          "longitude": 77.624483,
+          "gpsAccuracy": 6,
+          "mapUrl": "https://www.google.com/maps?q=12.935241,77.624483",
+          "geoSource": "gps"
+        },
+        {
+          "id": "addr_1787868174683_346",
+          "name": "Vicky RO Tech",
+          "mobile": "7979784087",
+          "line1": "Flat 402, Green Glen Layout",
+          "line2": "Bellandur Outer Ring Road",
+          "landmark": "Near Bellandur Lake Signal",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560103",
+          "isDefault": false,
+          "type": "workshop",
+          "latitude": 12.935241,
+          "longitude": 77.624483,
+          "gpsAccuracy": 6,
+          "mapUrl": "https://www.google.com/maps?q=12.935241,77.624483",
+          "geoSource": "gps"
+        },
+        {
+          "id": "addr_1787868206552_313",
+          "name": "Vicky RO Tech",
+          "mobile": "7979784087",
+          "line1": "Flat 402, Green Glen Layout",
+          "line2": "Bellandur Outer Ring Road",
+          "landmark": "Near Bellandur Lake Signal",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560103",
+          "isDefault": false,
+          "type": "workshop",
+          "latitude": 12.935241,
+          "longitude": 77.624483,
+          "gpsAccuracy": 6,
+          "mapUrl": "https://www.google.com/maps?q=12.935241,77.624483",
+          "geoSource": "gps"
+        },
+        {
+          "id": "addr_1787894014995_823",
+          "name": "Vicky RO Tech",
+          "mobile": "7979784087",
+          "line1": "Flat 402, Green Glen Layout",
+          "line2": "Bellandur Outer Ring Road",
+          "landmark": "Near Bellandur Lake Signal",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560103",
+          "isDefault": true,
+          "type": "workshop",
+          "latitude": 12.935241,
+          "longitude": 77.624483,
+          "gpsAccuracy": 6,
+          "mapUrl": "https://www.google.com/maps?q=12.935241,77.624483",
+          "geoSource": "gps"
+        }
+      ],
+      "defaultAddressId": "addr_1787894014995_823",
+      "createdAt": "2024-01-15T10:00:00Z"
+    },
+    {
+      "userId": "usr_admin_001",
+      "name": "Admin DropTech",
+      "email": "admin@roparts.in",
+      "mobile": "9876543211",
+      "role": "ADMIN",
+      "passwordHash": "admin123",
+      "addresses": [],
+      "createdAt": "2024-01-01T10:00:00Z"
+    },
+    {
+      "userId": "usr_1787866599447_4140",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9822334455",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787866599997_524",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9822334455",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": false,
+          "type": "workshop"
+        },
+        {
+          "id": "addr_1787867097500_622",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9822334455",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop"
+        }
+      ],
+      "createdAt": "2026-08-27T21:36:39.447Z",
+      "defaultAddressId": "addr_1787867097500_622"
+    },
+    {
+      "userId": "usr_1787867108877_3337",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9811835962",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787867109129_106",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9811835962",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop"
+        }
+      ],
+      "createdAt": "2026-08-27T21:45:08.877Z",
+      "defaultAddressId": "addr_1787867109129_106"
+    },
+    {
+      "userId": "usr_1787867429889_1336",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9875378057",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787867430177_396",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9875378057",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop"
+        }
+      ],
+      "createdAt": "2026-08-27T21:50:29.889Z",
+      "defaultAddressId": "addr_1787867430177_396"
+    },
+    {
+      "userId": "usr_1787867814398_7805",
+      "name": "VICKY",
+      "email": "",
+      "mobile": "7979784087",
+      "role": "CUSTOMER",
+      "addresses": [],
+      "createdAt": "2026-08-27T21:56:54.398Z"
+    },
+    {
+      "userId": "usr_1787868177023_3167",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9821484457",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787868177293_586",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9821484457",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop",
+          "geoSource": "manual"
+        }
+      ],
+      "createdAt": "2026-08-27T22:02:57.023Z",
+      "defaultAddressId": "addr_1787868177293_586"
+    },
+    {
+      "userId": "usr_1787868209023_6086",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9889379940",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787868209304_610",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9889379940",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop",
+          "geoSource": "manual"
+        }
+      ],
+      "createdAt": "2026-08-27T22:03:29.023Z",
+      "defaultAddressId": "addr_1787868209304_610"
+    },
+    {
+      "userId": "usr_1787894017556_6475",
+      "name": "Rajesh RO Technician",
+      "email": "rajesh.tech@example.com",
+      "mobile": "9823687493",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787894017807_815",
+          "name": "Rajesh RO Spares Depot",
+          "mobile": "9823687493",
+          "line1": "Shop 4, Commercial Complex",
+          "line2": "Indiranagar 100ft Road",
+          "landmark": "Adjacent to Indiranagar Metro Pillar 42",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "pincode": "560038",
+          "isDefault": true,
+          "type": "workshop",
+          "geoSource": "manual"
+        }
+      ],
+      "createdAt": "2026-08-28T05:13:37.556Z",
+      "defaultAddressId": "addr_1787894017807_815"
+    },
+    {
+      "userId": "usr_1787922323042_2473",
+      "name": "vaishali dutta",
+      "email": "",
+      "mobile": "6203739882",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787922785943_942",
+          "name": "vaishali dutta",
+          "mobile": "6203739882",
+          "line1": "shivpuri Colony Chas",
+          "city": "chas",
+          "state": "Jharkhand",
+          "pincode": "827013",
+          "isDefault": true,
+          "type": "home",
+          "geoSource": "manual"
+        }
+      ],
+      "createdAt": "2026-08-28T13:05:23.042Z",
+      "defaultAddressId": "addr_1787922785943_942"
+    },
+    {
+      "userId": "usr_1787992582347_4789",
+      "name": "Aryan",
+      "email": "",
+      "mobile": "6206502471",
+      "role": "CUSTOMER",
+      "addresses": [
+        {
+          "id": "addr_1787993143188_381",
+          "name": "Aryan",
+          "mobile": "6206502471",
+          "line1": "Shiv puri colony chas bokaro",
+          "line2": "Near singar shree",
+          "city": "Bokaro",
+          "state": "Jharkhand",
+          "pincode": "827013",
+          "isDefault": true,
+          "type": "home",
+          "geoSource": "manual"
+        }
+      ],
+      "createdAt": "2026-08-29T08:36:22.347Z",
+      "defaultAddressId": "addr_1787993143188_381"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-1787993143162",
+      "orderNumber": "RP-20260829-205411",
+      "customerId": "usr_1787992582347_4789",
+      "customerName": "Aryan",
+      "customerEmail": "dropaquawater@gmal.com",
+      "customerMobile": "6206502471",
+      "items": [
+        {
+          "productId": "prod-001",
+          "sku": "RP-MEM-75",
+          "name": "RO Membrane 75 GPD (Domestic)",
+          "image": "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=800&auto=format&fit=crop&q=80",
+          "quantity": 1,
+          "unitPrice": 3000,
+          "mrp": 79900,
+          "gstRate": 18,
+          "lineTotal": 3000
+        }
+      ],
+      "subtotal": 3000,
+      "discount": 0,
+      "couponDiscount": 0,
+      "shipping": 7900,
+      "gst": 540,
+      "total": 11440,
+      "status": "packed",
+      "paymentMethod": "online",
+      "paymentStatus": "paid",
+      "paymentId": "pay_RP20260829205411",
+      "shippingAddress": {
+        "name": "Aryan",
+        "mobile": "6206502471",
+        "email": "dropaquawater@gmal.com",
+        "line1": "Shiv puri colony chas bokaro",
+        "line2": "Near singar shree",
+        "city": "Bokaro",
+        "state": "Jharkhand",
+        "pincode": "827013",
+        "landmark": ""
+      },
+      "billingAddress": {
+        "name": "Aryan",
+        "mobile": "6206502471",
+        "email": "dropaquawater@gmal.com",
+        "line1": "Shiv puri colony chas bokaro",
+        "line2": "Near singar shree",
+        "city": "Bokaro",
+        "state": "Jharkhand",
+        "pincode": "827013",
+        "landmark": ""
+      },
+      "tracking": {
+        "status": "packed",
+        "fulfillmentType": "courier",
+        "courierPartner": "Delhivery Surface & Express",
+        "trackingNumber": "DL357440469IN",
+        "trackingUrl": "https://www.delhivery.com",
+        "currentLocation": "Bengaluru Central Fulfillment Center"
+      },
+      "milestones": [
+        {
+          "status": "confirmed",
+          "title": "Order Placed & Confirmed",
+          "description": "Payment confirmed. Order sent to factory dispatch team.",
+          "timestamp": "2026-08-29T08:45:43.162Z",
+          "completed": true
+        },
+        {
+          "status": "packed",
+          "title": "Quality Check & Packing",
+          "description": "Components bubble-wrapped and serial numbers recorded.",
+          "timestamp": "",
+          "completed": false
+        },
+        {
+          "status": "shipped",
+          "title": "Dispatched via Courier",
+          "description": "Consignment booked with Delhivery Surface & Express.",
+          "timestamp": "",
+          "completed": false
+        },
+        {
+          "status": "delivered",
+          "title": "Delivered",
+          "description": "Delivered with GST tax invoice.",
+          "timestamp": "",
+          "completed": false
+        }
+      ],
+      "createdAt": "2026-08-29T08:45:43.162Z",
+      "updatedAt": "2026-09-01T04:20:32.532Z"
+    }
+  ]
+}

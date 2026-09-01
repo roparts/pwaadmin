@@ -16,8 +16,28 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get("category");
   const query = searchParams.get("q")?.toLowerCase();
 
-  const store = loadDbStore();
-  let filtered = store.products || [];
+  let products: Product[] = [];
+
+  // 1. Try to fetch live products from main backend API
+  try {
+    const res = await proxyToBackend(`/admin/products${request.url.includes("?") ? "?" + request.url.split("?")[1] : ""}`);
+    if (res.ok) {
+      const liveData = await res.json();
+      if (liveData?.data?.products && Array.isArray(liveData.data.products) && liveData.data.products.length > 0) {
+        products = liveData.data.products;
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch live products from backend proxy, using local store:", err);
+  }
+
+  // 2. Fallback to local store
+  if (products.length === 0) {
+    const store = loadDbStore();
+    products = store.products || [];
+  }
+
+  let filtered = products;
 
   if (category && category !== "all") {
     filtered = filtered.filter((p) => p.categoryId === category || p.mainCategory === category);
