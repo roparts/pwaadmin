@@ -344,50 +344,7 @@ export const initialProducts: Product[] = [
   },
 ];
 
-export const initialOrders: Order[] = [
-  {
-    id: "ord_live_001",
-    orderNumber: "RP-ORD-2026-8921",
-    customerId: "usr_tech_001",
-    customerMobile: "9876543210",
-    items: [
-      {
-        productId: "prod-001",
-        sku: "RP-MEM-75",
-        name: "RO Membrane 75 GPD (Domestic)",
-        quantity: 2,
-        unitPrice: 37900,
-        mrp: 89900,
-        gstRate: 18,
-        lineTotal: 75800,
-      },
-    ],
-    subtotal: 75800,
-    total: 89444,
-    status: "out_for_delivery",
-    shippingAddress: {
-      id: "addr_001",
-      name: "Suresh Sharma (Water Clinic)",
-      mobile: "9876543210",
-      line1: "#45/2, 1st Cross, Indiranagar",
-      city: "Bengaluru",
-      state: "Karnataka",
-      pincode: "560038",
-      latitude: 12.9716,
-      longitude: 77.5946,
-      gpsAccuracy: 6,
-      mapUrl: "https://www.google.com/maps?q=12.9716,77.5946",
-    },
-    tracking: {
-      fulfillmentType: "local_delivery",
-      deliveryPersonName: "Ramesh Kumar (Bengaluru Direct)",
-      deliveryPersonPhone: "+91 9876543210",
-      currentLocation: "Out for delivery in Indiranagar / Domlur sector",
-    },
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+export const initialOrders: Order[] = [];
 
 export const initialCoupons: Coupon[] = [
   {
