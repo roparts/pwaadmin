@@ -89,18 +89,37 @@ export default function StandaloneAdminDashboard() {
   const [editingProductFull, setEditingProductFull] = useState<Product | null>(null);
   const [fullEditName, setFullEditName] = useState("");
   const [fullEditCategory, setFullEditCategory] = useState("cat-membrane");
+  const [fullEditMainCategory, setFullEditMainCategory] = useState<"domestic" | "commercial" | "industrial">("domestic");
+  const [fullEditBrand, setFullEditBrand] = useState("Drop Purity");
   const [fullEditPrice, setFullEditPrice] = useState("");
   const [fullEditMrp, setFullEditMrp] = useState("");
   const [fullEditStock, setFullEditStock] = useState("");
   const [fullEditStatus, setFullEditStatus] = useState<"active" | "draft" | "archived">("active");
+  const [fullEditShortDesc, setFullEditShortDesc] = useState("");
+  const [fullEditLongDesc, setFullEditLongDesc] = useState("");
+  const [fullEditKeywords, setFullEditKeywords] = useState<string[]>([]);
+  const [fullEditKeywordInput, setFullEditKeywordInput] = useState("");
+  const [fullEditWeight, setFullEditWeight] = useState("500");
+  const [fullEditDimensions, setFullEditDimensions] = useState("");
+  const [fullEditImages, setFullEditImages] = useState<string[]>([]);
+  const [fullEditImageError, setFullEditImageError] = useState("");
 
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [newProdName, setNewProdName] = useState("");
   const [newProdCategory, setNewProdCategory] = useState("cat-membrane");
+  const [newProdMainCategory, setNewProdMainCategory] = useState<"domestic" | "commercial" | "industrial">("domestic");
+  const [newProdBrand, setNewProdBrand] = useState("Drop Purity");
   const [newProdPrice, setNewProdPrice] = useState("450");
   const [newProdMrp, setNewProdMrp] = useState("899");
   const [newProdStock, setNewProdStock] = useState("50");
-  const [newProdImage, setNewProdImage] = useState("");
+  const [newProdShortDesc, setNewProdShortDesc] = useState("");
+  const [newProdLongDesc, setNewProdLongDesc] = useState("");
+  const [newProdKeywords, setNewProdKeywords] = useState<string[]>([]);
+  const [newProdKeywordInput, setNewProdKeywordInput] = useState("");
+  const [newProdWeight, setNewProdWeight] = useState("500");
+  const [newProdDimensions, setNewProdDimensions] = useState("");
+  const [newProdImages, setNewProdImages] = useState<string[]>([]);
+  const [newProdImageError, setNewProdImageError] = useState("");
 
   const [showNewCouponModal, setShowNewCouponModal] = useState(false);
   const [newCouponCode, setNewCouponCode] = useState("");
@@ -384,14 +403,134 @@ export default function StandaloneAdminDashboard() {
     }
   };
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1000;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          resolve(dataUrl);
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (
+    files: FileList | null,
+    currentImages: string[],
+    setImages: (imgs: string[]) => void,
+    setError: (msg: string) => void
+  ) => {
+    if (!files || files.length === 0) return;
+    setError("");
+
+    // Remove any dummy placeholder from list if user is adding real photos
+    const existing = currentImages.filter((img) => !img.includes("placehold.co"));
+    const remainingSlots = 4 - existing.length;
+    if (remainingSlots <= 0) {
+      setError("Maximum 4 photos allowed per product.");
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    const newImgs: string[] = [];
+
+    for (const file of filesToProcess) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError(`"${file.name}" exceeds 5MB limit. Please choose a smaller photo.`);
+        return;
+      }
+      try {
+        const optimized = await compressImage(file);
+        if (optimized) {
+          newImgs.push(optimized);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (newImgs.length > 0) {
+      setImages([...existing, ...newImgs]);
+    }
+  };
+
+  const handleAddKeyword = (
+    kw: string,
+    currentList: string[],
+    setList: (list: string[]) => void,
+    setInput: (val: string) => void
+  ) => {
+    const trimmed = kw.trim().replace(/^,+|,+$/g, "");
+    if (!trimmed) return;
+    const parts = trimmed.split(",").map((s) => s.trim()).filter(Boolean);
+    const updated = [...currentList];
+    for (const p of parts) {
+      if (!updated.includes(p)) {
+        updated.push(p);
+      }
+    }
+    setList(updated);
+    setInput("");
+  };
+
+  const handleRemoveKeyword = (
+    indexToRemove: number,
+    currentList: string[],
+    setList: (list: string[]) => void
+  ) => {
+    setList(currentList.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const openFullEditModal = (p: Product) => {
     setEditingProductFull(p);
     setFullEditName(p.name);
     setFullEditCategory(p.categoryId || "cat-membrane");
+    setFullEditMainCategory((p.mainCategory as "domestic" | "commercial" | "industrial") || "domestic");
+    setFullEditBrand(p.brand || "Drop Purity");
     setFullEditPrice((p.sellingPrice / 100).toString());
     setFullEditMrp((p.mrp / 100).toString());
     setFullEditStock(p.stock.toString());
     setFullEditStatus((p.status as "active" | "draft" | "archived") || "active");
+    setFullEditShortDesc(p.shortDescription || p.name);
+    setFullEditLongDesc(p.longDescription || p.name);
+    setFullEditKeywords(
+      Array.isArray(p.seoKeywords)
+        ? p.seoKeywords
+        : p.seoKeywords
+        ? String(p.seoKeywords).split(",").map((s) => s.trim()).filter(Boolean)
+        : []
+    );
+    setFullEditKeywordInput("");
+    setFullEditWeight((p.weight || 500).toString());
+    setFullEditDimensions((p.specifications as any)?.dimensions || "Standard");
+    setFullEditImages(p.images && p.images.length > 0 ? p.images : []);
+    setFullEditImageError("");
   };
 
   const handleSaveProductInline = async (id: string) => {
@@ -459,17 +598,34 @@ export default function StandaloneAdminDashboard() {
       const priceInPaise = Math.round(Number(fullEditPrice) * 100);
       const mrpInPaise = Math.round(Number(fullEditMrp) * 100);
       const stockCount = Number(fullEditStock);
+
+      const finalKeywords = [...fullEditKeywords];
+      if (fullEditKeywordInput.trim() && !finalKeywords.includes(fullEditKeywordInput.trim())) {
+        finalKeywords.push(fullEditKeywordInput.trim());
+      }
+
       const res = await fetch("/api/products", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: targetId,
-          name: fullEditName,
+          name: fullEditName.trim(),
           categoryId: fullEditCategory,
+          mainCategory: fullEditMainCategory,
+          brand: fullEditBrand.trim() || "Drop Purity",
           sellingPrice: priceInPaise,
           mrp: mrpInPaise,
           stock: stockCount,
           status: fullEditStatus,
+          shortDescription: fullEditShortDesc.trim() || fullEditName.trim(),
+          longDescription: fullEditLongDesc.trim() || fullEditName.trim(),
+          weight: Number(fullEditWeight) || 500,
+          specifications: {
+            dimensions: fullEditDimensions.trim() || "Standard",
+            brand: fullEditBrand.trim() || "Drop Purity",
+          },
+          seoKeywords: finalKeywords,
+          images: fullEditImages.length > 0 ? fullEditImages : ["https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"],
         }),
       });
       const json = await res.json();
@@ -505,24 +661,73 @@ export default function StandaloneAdminDashboard() {
 
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = newProdName.trim();
+    if (!trimmedName) return;
+
+    // Check duplicate name on client
+    const existing = products.find(
+      (p) => p.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (existing) {
+      setProductActionMsg(`❌ A product named "${trimmedName}" already exists (SKU: ${existing.sku}). Please choose a unique name or edit the existing product.`);
+      return;
+    }
+
+    setSavingProduct(true);
+    setProductActionMsg("⏳ Creating product in database...");
     try {
-      await fetch("/api/products", {
+      const finalKeywords = [...newProdKeywords];
+      if (newProdKeywordInput.trim() && !finalKeywords.includes(newProdKeywordInput.trim())) {
+        finalKeywords.push(newProdKeywordInput.trim());
+      }
+
+      const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: newProdName,
+          name: trimmedName,
+          mainCategory: newProdMainCategory,
           categoryId: newProdCategory,
+          brand: newProdBrand.trim() || "Drop Purity",
           sellingPrice: Math.round(Number(newProdPrice) * 100),
           mrp: Math.round(Number(newProdMrp) * 100),
           stock: Number(newProdStock),
-          images: newProdImage ? [newProdImage] : ["https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"],
+          shortDescription: newProdShortDesc.trim() || newProdName.trim(),
+          longDescription: newProdLongDesc.trim() || newProdName.trim(),
+          weight: Number(newProdWeight) || 500,
+          specifications: {
+            dimensions: newProdDimensions.trim() || "Standard",
+            brand: newProdBrand.trim() || "Drop Purity",
+          },
+          seoKeywords: finalKeywords,
+          images: newProdImages.length > 0 ? newProdImages : ["https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"],
         }),
       });
-      setShowNewProductModal(false);
-      setNewProdName("");
-      await loadDashboardData();
-    } catch {
-      alert("Failed to create product");
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setShowNewProductModal(false);
+        setNewProdName("");
+        setNewProdPrice("450");
+        setNewProdMrp("899");
+        setNewProdStock("50");
+        setNewProdShortDesc("");
+        setNewProdLongDesc("");
+        setNewProdKeywords([]);
+        setNewProdKeywordInput("");
+        setNewProdWeight("500");
+        setNewProdDimensions("");
+        setNewProdImages([]);
+        setNewProdImageError("");
+        setProductActionMsg("✅ New product created and live in catalog!");
+        setTimeout(() => setProductActionMsg(""), 5000);
+        await loadDashboardData();
+      } else {
+        setProductActionMsg(`❌ Product creation failed: ${json.error || "Server error"}`);
+      }
+    } catch (err: any) {
+      setProductActionMsg(`❌ Network error: ${err?.message || err}`);
+    } finally {
+      setSavingProduct(false);
     }
   };
 
@@ -1261,12 +1466,18 @@ export default function StandaloneAdminDashboard() {
                   }}
                 >
                   <option value="all">All Categories</option>
-                  <option value="cat-membrane">Membranes</option>
-                  <option value="cat-pump">Booster Pumps</option>
-                  <option value="cat-filter">Filters &amp; Cartridges</option>
-                  <option value="cat-domestic">Domestic RO</option>
-                  <option value="cat-commercial">Commercial RO</option>
-                  <option value="cat-industrial">Industrial RO</option>
+                  <option value="domestic">🏠 Domestic RO</option>
+                  <option value="commercial">🏢 Commercial RO</option>
+                  <option value="industrial">🏭 Industrial RO</option>
+                  <option value="cat-membrane">RO Membranes</option>
+                  <option value="cat-filters">Filter Cartridges</option>
+                  <option value="cat-pumps">Booster Pumps</option>
+                  <option value="cat-smps">SMPS Power Adapters</option>
+                  <option value="cat-valves">Valves & Switches</option>
+                  <option value="cat-housings">Filter Housings</option>
+                  <option value="cat-fittings">Fittings & Connectors</option>
+                  <option value="cat-tanks">Pressure Tanks</option>
+                  <option value="cat-instruments">Flow Meters & Gauges</option>
                 </select>
               </div>
 
@@ -1304,7 +1515,9 @@ export default function StandaloneAdminDashboard() {
                         </td>
                       </tr>
                     ) : (
-                      filteredProducts.map((p) => {
+                      filteredProducts
+                        .filter((p, index, self) => index === self.findIndex((t) => t.id === p.id))
+                        .map((p) => {
                         const isEditing = editingProductId === p.id;
                         const currentStatus = (p.status as "active" | "draft" | "archived") || "active";
                         return (
@@ -1549,30 +1762,421 @@ export default function StandaloneAdminDashboard() {
 
       {/* Modal: Create Product */}
       {showNewProductModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 100 }}>
-          <div style={{ background: "#1e293b", border: "1px solid #475569", borderRadius: "20px", maxWidth: "460px", width: "100%", padding: "1.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h3 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0, color: "#fff" }}>➕ Add New Product</h3>
-              <button onClick={() => setShowNewProductModal(false)} style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer" }}>✕</button>
-            </div>
-            <form onSubmit={handleCreateProduct}>
-              <div style={{ marginBottom: "0.75rem" }}>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Product Name *</label>
-                <input required value={newProdName} onChange={(e) => setNewProdName(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }} />
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 100 }}>
+          <div style={{ background: "#1e293b", border: "1px solid #475569", borderRadius: "24px", maxWidth: "760px", width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
+            {/* Header */}
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #334155", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span>➕</span> Add New Product
+                </h3>
+                <p style={{ margin: "0.2rem 0 0", fontSize: "0.75rem", color: "#94a3b8" }}>
+                  Create and publish a new RO spare part to the storefront catalog.
+                </p>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1rem" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Price (₹) *</label>
-                  <input required type="number" value={newProdPrice} onChange={(e) => setNewProdPrice(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }} />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Stock</label>
-                  <input type="number" value={newProdStock} onChange={(e) => setNewProdStock(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }} />
-                </div>
-              </div>
-              <button type="submit" style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "none", background: "#22c55e", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
-                Save Product →
+              <button
+                type="button"
+                onClick={() => setShowNewProductModal(false)}
+                style={{ background: "#334155", border: "none", color: "#cbd5e1", width: "32px", height: "32px", borderRadius: "8px", fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                ✕
               </button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleCreateProduct} style={{ padding: "1.5rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* Category Segment Selection */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.5rem" }}>
+                  1. RO Category Segment *
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
+                  {[
+                    { id: "domestic", label: "🏠 Domestic RO", desc: "Home purifiers (75-100 GPD)" },
+                    { id: "commercial", label: "🏢 Commercial RO", desc: "Offices & Cafes (25-100 LPH)" },
+                    { id: "industrial", label: "🏭 Industrial RO", desc: "Plants (250-5000+ LPH)" },
+                  ].map((seg) => (
+                    <button
+                      key={seg.id}
+                      type="button"
+                      onClick={() => setNewProdMainCategory(seg.id as any)}
+                      style={{
+                        padding: "0.75rem",
+                        borderRadius: "12px",
+                        border: `2px solid ${newProdMainCategory === seg.id ? "#38bdf8" : "#334155"}`,
+                        background: newProdMainCategory === seg.id ? "rgba(56, 189, 248, 0.12)" : "#0f172a",
+                        color: newProdMainCategory === seg.id ? "#38bdf8" : "#94a3b8",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <div style={{ fontWeight: 800, fontSize: "0.875rem", color: newProdMainCategory === seg.id ? "#fff" : "#cbd5e1" }}>
+                        {seg.label}
+                      </div>
+                      <div style={{ fontSize: "0.6875rem", marginTop: "0.2rem", opacity: 0.8 }}>
+                        {seg.desc}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Product Identity */}
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Product Name *
+                  </label>
+                  <input
+                    required
+                    placeholder="e.g. 100 GPD RO Membrane High TDS"
+                    value={newProdName}
+                    onChange={(e) => setNewProdName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.65rem 0.875rem",
+                      borderRadius: "10px",
+                      background: "#0f172a",
+                      border: `1px solid ${newProdName.trim() && products.some((p) => p.name.trim().toLowerCase() === newProdName.trim().toLowerCase()) ? "#ef4444" : "#334155"}`,
+                      color: "#fff",
+                      fontSize: "0.875rem",
+                    }}
+                  />
+                  {newProdName.trim() && products.some((p) => p.name.trim().toLowerCase() === newProdName.trim().toLowerCase()) && (
+                    <div style={{ color: "#f87171", fontSize: "0.75rem", fontWeight: 700, marginTop: "0.35rem" }}>
+                      ⚠️ A product with this name already exists in your catalog!
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Component Type
+                  </label>
+                  <select
+                    value={newProdCategory}
+                    onChange={(e) => setNewProdCategory(e.target.value)}
+                    style={{ width: "100%", padding: "0.65rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  >
+                    <option value="cat-membrane">RO Membrane</option>
+                    <option value="cat-filters">Filter Cartridges (PP, CTO, Pre-Carbon)</option>
+                    <option value="cat-pumps">Booster Pumps</option>
+                    <option value="cat-smps">SMPS Power Adapters</option>
+                    <option value="cat-valves">Valves & Switches</option>
+                    <option value="cat-housings">Filter Housings</option>
+                    <option value="cat-fittings">Fittings & Connectors</option>
+                    <option value="cat-tanks">Pressure Tanks</option>
+                    <option value="cat-instruments">Flow Meters & Gauges</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Pricing, Stock & Brand */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.75rem", background: "#0f172a", padding: "1rem", borderRadius: "14px", border: "1px solid #334155" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#38bdf8", marginBottom: "0.35rem" }}>
+                    Selling Price (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #38bdf8", color: "#38bdf8", fontWeight: 800, fontSize: "0.9375rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    MRP (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={newProdMrp}
+                    onChange={(e) => setNewProdMrp(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: "0.9375rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    Live Stock *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    value={newProdStock}
+                    onChange={(e) => setNewProdStock(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontWeight: 700, fontSize: "0.9375rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    Brand Name
+                  </label>
+                  <input
+                    placeholder="e.g. Drop Purity"
+                    value={newProdBrand}
+                    onChange={(e) => setNewProdBrand(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  />
+                </div>
+              </div>
+
+              {/* Product Descriptions */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                  Short Summary Description
+                </label>
+                <input
+                  placeholder="Brief 1-line overview for catalog cards (e.g. High rejection 100 GPD membrane for TDS up to 2500 ppm)"
+                  value={newProdShortDesc}
+                  onChange={(e) => setNewProdShortDesc(e.target.value)}
+                  style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem", marginBottom: "0.75rem" }}
+                />
+
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                  Detailed Product Description & Features
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Detailed specifications, installation guidelines, compatibility and performance details..."
+                  value={newProdLongDesc}
+                  onChange={(e) => setNewProdLongDesc(e.target.value)}
+                  style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem", resize: "vertical" }}
+                />
+              </div>
+
+              {/* Specifications: Weight, Dimensions & Keywords */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "0.75rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Weight (grams)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 500"
+                    value={newProdWeight}
+                    onChange={(e) => setNewProdWeight(e.target.value)}
+                    style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Dimensions (L×W×H)
+                  </label>
+                  <input
+                    placeholder="e.g. 30 x 5 x 5 cm"
+                    value={newProdDimensions}
+                    onChange={(e) => setNewProdDimensions(e.target.value)}
+                    style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem" }}
+                  />
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                    <label style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1" }}>
+                      Search Keywords / Tags ({newProdKeywords.length})
+                    </label>
+                    <span style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>Press Enter ↵ to add</span>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "#0f172a",
+                      border: "1px solid #334155",
+                      borderRadius: "10px",
+                      padding: "0.35rem 0.5rem",
+                      minHeight: "42px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                    }}
+                  >
+                    {newProdKeywords.map((kw, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          background: "rgba(56, 189, 248, 0.15)",
+                          border: "1px solid #38bdf8",
+                          color: "#38bdf8",
+                          borderRadius: "6px",
+                          padding: "0.2rem 0.5rem",
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                        }}
+                      >
+                        <span>{kw}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(idx, newProdKeywords, setNewProdKeywords)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#94a3b8",
+                            cursor: "pointer",
+                            padding: "0 0.1rem",
+                            fontSize: "0.75rem",
+                            lineHeight: 1,
+                          }}
+                          title="Remove keyword"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+
+                    <input
+                      placeholder={newProdKeywords.length === 0 ? "Type keyword & press Enter..." : "Add more..."}
+                      value={newProdKeywordInput}
+                      onChange={(e) => setNewProdKeywordInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === ",") {
+                          e.preventDefault();
+                          handleAddKeyword(newProdKeywordInput, newProdKeywords, setNewProdKeywords, setNewProdKeywordInput);
+                        } else if (e.key === "Backspace" && !newProdKeywordInput && newProdKeywords.length > 0) {
+                          handleRemoveKeyword(newProdKeywords.length - 1, newProdKeywords, setNewProdKeywords);
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        minWidth: "130px",
+                        background: "transparent",
+                        border: "none",
+                        outline: "none",
+                        color: "#fff",
+                        fontSize: "0.8125rem",
+                        padding: "0.25rem 0.35rem",
+                      }}
+                    />
+
+                    {newProdKeywordInput.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => handleAddKeyword(newProdKeywordInput, newProdKeywords, setNewProdKeywords, setNewProdKeywordInput)}
+                        style={{
+                          background: "#38bdf8",
+                          color: "#0f172a",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "0.2rem 0.5rem",
+                          fontSize: "0.6875rem",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                        }}
+                      >
+                        + Add
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo Uploads: Max 1MB each, up to 4 photos max */}
+              <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "14px", padding: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <div>
+                    <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1" }}>
+                      📸 Product Photos ({newProdImages.length}/4)
+                    </span>
+                    <span style={{ fontSize: "0.6875rem", color: "#94a3b8", marginLeft: "0.5rem" }}>
+                      (Max 1MB per photo • Up to 4 photos)
+                    </span>
+                  </div>
+                  {newProdImages.length < 4 && (
+                    <label style={{ background: "#3b82f6", color: "#fff", padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                      <span>Upload Files</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(e.target.files, newProdImages, setNewProdImages, setNewProdImageError)}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {newProdImageError && (
+                  <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid #ef4444", color: "#fca5a5", padding: "0.5rem", borderRadius: "8px", fontSize: "0.75rem", marginBottom: "0.75rem" }}>
+                    ⚠️ {newProdImageError}
+                  </div>
+                )}
+
+                {/* Uploaded Images Preview Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem" }}>
+                  {newProdImages.map((imgUrl, idx) => (
+                    <div key={idx} style={{ position: "relative", aspectRatio: "1/1", borderRadius: "10px", overflow: "hidden", border: "2px solid #334155", background: "#1e293b" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imgUrl} alt={`Product ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button
+                        type="button"
+                        onClick={() => setNewProdImages(newProdImages.filter((_, i) => i !== idx))}
+                        style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.75)", color: "#fff", border: "none", width: "22px", height: "22px", borderRadius: "50%", cursor: "pointer", fontSize: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        title="Remove photo"
+                      >
+                        ✕
+                      </button>
+                      {idx === 0 && (
+                        <span style={{ position: "absolute", bottom: "4px", left: "4px", background: "#22c55e", color: "#fff", fontSize: "0.625rem", padding: "0.1rem 0.35rem", borderRadius: "4px", fontWeight: 700 }}>
+                          Main
+                        </span>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Empty Slots */}
+                  {Array.from({ length: Math.max(0, 4 - newProdImages.length) }).map((_, i) => (
+                    <label
+                      key={`empty-${i}`}
+                      style={{
+                        aspectRatio: "1/1",
+                        borderRadius: "10px",
+                        border: "2px dashed #334155",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#64748b",
+                        fontSize: "0.6875rem",
+                        cursor: "pointer",
+                        background: "rgba(255,255,255,0.02)",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.25rem", marginBottom: "0.25rem" }}>📷</span>
+                      <span>Photo {newProdImages.length + i + 1}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(e.target.files, newProdImages, setNewProdImages, setNewProdImageError)}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit & Cancel Buttons */}
+              <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowNewProductModal(false)}
+                  style={{ flex: 1, padding: "0.875rem", borderRadius: "12px", border: "1px solid #334155", background: "transparent", color: "#cbd5e1", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProduct}
+                  style={{ flex: 2, padding: "0.875rem", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 14px rgba(34, 197, 94, 0.4)" }}
+                >
+                  {savingProduct ? "⏳ Saving Product..." : "✓ Save & Publish Product →"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -1605,44 +2209,416 @@ export default function StandaloneAdminDashboard() {
 
       {/* Modal: Full Product Edit */}
       {editingProductFull && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 100 }}>
-          <div style={{ background: "#1e293b", border: "1px solid #475569", borderRadius: "20px", maxWidth: "480px", width: "100%", padding: "1.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h3 style={{ fontSize: "1.125rem", fontWeight: 800, margin: 0, color: "#fff" }}>⚙️ Edit Product: {editingProductFull.sku}</h3>
-              <button onClick={() => setEditingProductFull(null)} style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer" }}>✕</button>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", zIndex: 100 }}>
+          <div style={{ background: "#1e293b", border: "1px solid #475569", borderRadius: "24px", maxWidth: "760px", width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>
+            {/* Header */}
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #334155", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span>⚙️</span> Edit Product: {editingProductFull.sku}
+                </h3>
+                <p style={{ margin: "0.2rem 0 0", fontSize: "0.75rem", color: "#94a3b8" }}>
+                  Update full specifications, category segment, pricing, and photos.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingProductFull(null)}
+                style={{ background: "#334155", border: "none", color: "#cbd5e1", width: "32px", height: "32px", borderRadius: "8px", fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                ✕
+              </button>
             </div>
-            <form onSubmit={handleSaveProductFull}>
-              <div style={{ marginBottom: "0.75rem" }}>
-                <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Product Name *</label>
-                <input required value={fullEditName} onChange={(e) => setFullEditName(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontWeight: 700 }} />
+
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveProductFull} style={{ padding: "1.5rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* Category Segment Selection */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.5rem" }}>
+                  1. RO Category Segment *
+                </label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
+                  {[
+                    { id: "domestic", label: "🏠 Domestic RO", desc: "Home purifiers (75-100 GPD)" },
+                    { id: "commercial", label: "🏢 Commercial RO", desc: "Offices & Cafes (25-100 LPH)" },
+                    { id: "industrial", label: "🏭 Industrial RO", desc: "Plants (250-5000+ LPH)" },
+                  ].map((seg) => (
+                    <button
+                      key={seg.id}
+                      type="button"
+                      onClick={() => setFullEditMainCategory(seg.id as any)}
+                      style={{
+                        padding: "0.75rem",
+                        borderRadius: "12px",
+                        border: `2px solid ${fullEditMainCategory === seg.id ? "#38bdf8" : "#334155"}`,
+                        background: fullEditMainCategory === seg.id ? "rgba(56, 189, 248, 0.12)" : "#0f172a",
+                        color: fullEditMainCategory === seg.id ? "#38bdf8" : "#94a3b8",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <div style={{ fontWeight: 800, fontSize: "0.875rem", color: fullEditMainCategory === seg.id ? "#fff" : "#cbd5e1" }}>
+                        {seg.label}
+                      </div>
+                      <div style={{ fontSize: "0.6875rem", marginTop: "0.2rem", opacity: 0.8 }}>
+                        {seg.desc}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
+
+              {/* Product Identity */}
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Selling Price (₹) *</label>
-                  <input required type="number" step="any" value={fullEditPrice} onChange={(e) => setFullEditPrice(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #38bdf8", color: "#38bdf8", fontWeight: 800 }} />
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Product Name *
+                  </label>
+                  <input
+                    required
+                    value={fullEditName}
+                    onChange={(e) => setFullEditName(e.target.value)}
+                    style={{ width: "100%", padding: "0.65rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>MRP (₹)</label>
-                  <input required type="number" step="any" value={fullEditMrp} onChange={(e) => setFullEditMrp(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }} />
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Component Type
+                  </label>
+                  <select
+                    value={fullEditCategory}
+                    onChange={(e) => setFullEditCategory(e.target.value)}
+                    style={{ width: "100%", padding: "0.65rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  >
+                    <option value="cat-membrane">RO Membrane</option>
+                    <option value="cat-filters">Filter Cartridges (PP, CTO, Pre-Carbon)</option>
+                    <option value="cat-pumps">Booster Pumps</option>
+                    <option value="cat-smps">SMPS Power Adapters</option>
+                    <option value="cat-valves">Valves & Switches</option>
+                    <option value="cat-housings">Filter Housings</option>
+                    <option value="cat-fittings">Fittings & Connectors</option>
+                    <option value="cat-tanks">Pressure Tanks</option>
+                    <option value="cat-instruments">Flow Meters & Gauges</option>
+                  </select>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+
+              {/* Pricing, Stock & Status */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: "0.75rem", background: "#0f172a", padding: "1rem", borderRadius: "14px", border: "1px solid #334155" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Live Stock *</label>
-                  <input required type="number" value={fullEditStock} onChange={(e) => setFullEditStock(e.target.value)} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontWeight: 700 }} />
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#38bdf8", marginBottom: "0.35rem" }}>
+                    Selling Price (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={fullEditPrice}
+                    onChange={(e) => setFullEditPrice(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #38bdf8", color: "#38bdf8", fontWeight: 800, fontSize: "0.9375rem" }}
+                  />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.25rem" }}>Status</label>
-                  <select value={fullEditStatus} onChange={(e) => setFullEditStatus(e.target.value as "active" | "draft" | "archived")} style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", background: "#0f172a", border: "1px solid #334155", color: "#fff" }}>
-                    <option value="active">Active (Visible)</option>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    MRP (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    step="any"
+                    value={fullEditMrp}
+                    onChange={(e) => setFullEditMrp(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: "0.9375rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    Live Stock *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    value={fullEditStock}
+                    onChange={(e) => setFullEditStock(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontWeight: 700, fontSize: "0.9375rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    Brand Name
+                  </label>
+                  <input
+                    value={fullEditBrand}
+                    onChange={(e) => setFullEditBrand(e.target.value)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.35rem" }}>
+                    Status
+                  </label>
+                  <select
+                    value={fullEditStatus}
+                    onChange={(e) => setFullEditStatus(e.target.value as any)}
+                    style={{ width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px", background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: "0.875rem" }}
+                  >
+                    <option value="active">Active (Live)</option>
                     <option value="draft">Draft (Hidden)</option>
                     <option value="archived">Archived</option>
                   </select>
                 </div>
               </div>
-              <button type="submit" disabled={savingProduct} style={{ width: "100%", padding: "0.75rem", borderRadius: "10px", border: "none", background: "#22c55e", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
-                {savingProduct ? "Saving Updates..." : "✓ Save Product Changes"}
-              </button>
+
+              {/* Product Descriptions */}
+              <div>
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                  Short Summary Description
+                </label>
+                <input
+                  value={fullEditShortDesc}
+                  onChange={(e) => setFullEditShortDesc(e.target.value)}
+                  style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem", marginBottom: "0.75rem" }}
+                />
+
+                <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                  Detailed Product Description & Features
+                </label>
+                <textarea
+                  rows={3}
+                  value={fullEditLongDesc}
+                  onChange={(e) => setFullEditLongDesc(e.target.value)}
+                  style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem", resize: "vertical" }}
+                />
+              </div>
+
+              {/* Specifications: Weight, Dimensions & Keywords */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 2fr", gap: "0.75rem" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Weight (grams)
+                  </label>
+                  <input
+                    type="number"
+                    value={fullEditWeight}
+                    onChange={(e) => setFullEditWeight(e.target.value)}
+                    style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.35rem" }}>
+                    Dimensions (L×W×H)
+                  </label>
+                  <input
+                    value={fullEditDimensions}
+                    onChange={(e) => setFullEditDimensions(e.target.value)}
+                    style={{ width: "100%", padding: "0.6rem 0.875rem", borderRadius: "10px", background: "#0f172a", border: "1px solid #334155", color: "#fff", fontSize: "0.8125rem" }}
+                  />
+                </div>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                    <label style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1" }}>
+                      Search Keywords / Tags ({fullEditKeywords.length})
+                    </label>
+                    <span style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>Press Enter ↵ to add</span>
+                  </div>
+
+                  <div
+                    style={{
+                      background: "#0f172a",
+                      border: "1px solid #334155",
+                      borderRadius: "10px",
+                      padding: "0.35rem 0.5rem",
+                      minHeight: "42px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                    }}
+                  >
+                    {fullEditKeywords.map((kw, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          background: "rgba(56, 189, 248, 0.15)",
+                          border: "1px solid #38bdf8",
+                          color: "#38bdf8",
+                          borderRadius: "6px",
+                          padding: "0.2rem 0.5rem",
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.35rem",
+                        }}
+                      >
+                        <span>{kw}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(idx, fullEditKeywords, setFullEditKeywords)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#94a3b8",
+                            cursor: "pointer",
+                            padding: "0 0.1rem",
+                            fontSize: "0.75rem",
+                            lineHeight: 1,
+                          }}
+                          title="Remove keyword"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+
+                    <input
+                      placeholder={fullEditKeywords.length === 0 ? "Type keyword & press Enter..." : "Add more..."}
+                      value={fullEditKeywordInput}
+                      onChange={(e) => setFullEditKeywordInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === ",") {
+                          e.preventDefault();
+                          handleAddKeyword(fullEditKeywordInput, fullEditKeywords, setFullEditKeywords, setFullEditKeywordInput);
+                        } else if (e.key === "Backspace" && !fullEditKeywordInput && fullEditKeywords.length > 0) {
+                          handleRemoveKeyword(fullEditKeywords.length - 1, fullEditKeywords, setFullEditKeywords);
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        minWidth: "130px",
+                        background: "transparent",
+                        border: "none",
+                        outline: "none",
+                        color: "#fff",
+                        fontSize: "0.8125rem",
+                        padding: "0.25rem 0.35rem",
+                      }}
+                    />
+
+                    {fullEditKeywordInput.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => handleAddKeyword(fullEditKeywordInput, fullEditKeywords, setFullEditKeywords, setFullEditKeywordInput)}
+                        style={{
+                          background: "#38bdf8",
+                          color: "#0f172a",
+                          border: "none",
+                          borderRadius: "6px",
+                          padding: "0.2rem 0.5rem",
+                          fontSize: "0.6875rem",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                        }}
+                      >
+                        + Add
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo Uploads: Max 1MB each, up to 4 photos max */}
+              <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "14px", padding: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <div>
+                    <span style={{ fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1" }}>
+                      📸 Product Photos ({fullEditImages.length}/4)
+                    </span>
+                    <span style={{ fontSize: "0.6875rem", color: "#94a3b8", marginLeft: "0.5rem" }}>
+                      (Max 1MB per photo • Up to 4 photos)
+                    </span>
+                  </div>
+                  {fullEditImages.length < 4 && (
+                    <label style={{ background: "#3b82f6", color: "#fff", padding: "0.35rem 0.75rem", borderRadius: "8px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                      <span>Upload Files</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(e.target.files, fullEditImages, setFullEditImages, setFullEditImageError)}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {fullEditImageError && (
+                  <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid #ef4444", color: "#fca5a5", padding: "0.5rem", borderRadius: "8px", fontSize: "0.75rem", marginBottom: "0.75rem" }}>
+                    ⚠️ {fullEditImageError}
+                  </div>
+                )}
+
+                {/* Uploaded Images Preview Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.75rem" }}>
+                  {fullEditImages.map((imgUrl, idx) => (
+                    <div key={idx} style={{ position: "relative", aspectRatio: "1/1", borderRadius: "10px", overflow: "hidden", border: "2px solid #334155", background: "#1e293b" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={imgUrl} alt={`Product ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button
+                        type="button"
+                        onClick={() => setFullEditImages(fullEditImages.filter((_, i) => i !== idx))}
+                        style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.75)", color: "#fff", border: "none", width: "22px", height: "22px", borderRadius: "50%", cursor: "pointer", fontSize: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        title="Remove photo"
+                      >
+                        ✕
+                      </button>
+                      {idx === 0 && (
+                        <span style={{ position: "absolute", bottom: "4px", left: "4px", background: "#22c55e", color: "#fff", fontSize: "0.625rem", padding: "0.1rem 0.35rem", borderRadius: "4px", fontWeight: 700 }}>
+                          Main
+                        </span>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Empty Slots */}
+                  {Array.from({ length: Math.max(0, 4 - fullEditImages.length) }).map((_, i) => (
+                    <label
+                      key={`empty-${i}`}
+                      style={{
+                        aspectRatio: "1/1",
+                        borderRadius: "10px",
+                        border: "2px dashed #334155",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#64748b",
+                        fontSize: "0.6875rem",
+                        cursor: "pointer",
+                        background: "rgba(255,255,255,0.02)",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.25rem", marginBottom: "0.25rem" }}>📷</span>
+                      <span>Photo {fullEditImages.length + i + 1}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleImageUpload(e.target.files, fullEditImages, setFullEditImages, setFullEditImageError)}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit & Cancel Buttons */}
+              <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={() => setEditingProductFull(null)}
+                  style={{ flex: 1, padding: "0.875rem", borderRadius: "12px", border: "1px solid #334155", background: "transparent", color: "#cbd5e1", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProduct}
+                  style={{ flex: 2, padding: "0.875rem", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", boxShadow: "0 4px 14px rgba(34, 197, 94, 0.4)" }}
+                >
+                  {savingProduct ? "⏳ Saving Changes..." : "✓ Save Product Changes →"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
