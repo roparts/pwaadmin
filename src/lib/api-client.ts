@@ -1,4 +1,9 @@
-const MAIN_BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || "https://roparts.in/api/v1";
+const rawBackend =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.API_GATEWAY_URL ? `${process.env.API_GATEWAY_URL}/api/v1` : null) ||
+  process.env.API_BASE_URL ||
+  "https://api.roparts.in/api/v1";
+const MAIN_BACKEND_URL = rawBackend.startsWith("http") ? rawBackend : `https://${rawBackend}`;
 const SESSION_SECRET = process.env.SESSION_SECRET || "rp_prod_secret_key_tamper_guard_982347182937";
 
 export async function proxyToBackend(endpoint: string, options: RequestInit = {}) {
