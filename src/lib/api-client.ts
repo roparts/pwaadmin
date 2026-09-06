@@ -1,9 +1,16 @@
-const rawBackend =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (process.env.API_GATEWAY_URL ? `${process.env.API_GATEWAY_URL}/api/v1` : null) ||
-  process.env.API_BASE_URL ||
-  "https://api.roparts.in/api/v1";
-const MAIN_BACKEND_URL = rawBackend.startsWith("http") ? rawBackend : `https://${rawBackend}`;
+function getBackendUrl(): string {
+  // Production on Vercel or public domain: ALWAYS use production API domain
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+    const prodUrl = process.env.API_GATEWAY_URL || "https://api.roparts.in";
+    const clean = prodUrl.startsWith("http") ? prodUrl : `https://${prodUrl}`;
+    return clean.endsWith("/api/v1") ? clean : `${clean}/api/v1`;
+  }
+  // Local development: use NEXT_PUBLIC_API_URL or localhost:3000
+  const devUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+  return devUrl.startsWith("http") ? devUrl : `http://${devUrl}`;
+}
+
+const MAIN_BACKEND_URL = getBackendUrl();
 const SESSION_SECRET = process.env.SESSION_SECRET || "rp_prod_secret_key_tamper_guard_982347182937";
 
 export async function proxyToBackend(endpoint: string, options: RequestInit = {}) {
