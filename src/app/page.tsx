@@ -55,7 +55,17 @@ export default function StandaloneAdminDashboard() {
   const [sendingWaMfa, setSendingWaMfa] = useState(false);
   const [waMfaMsg, setWaMfaMsg] = useState("");
 
-  const [activeTab, setActiveTab] = useState<"orders" | "products" | "coupons" | "customers" | "security">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "products" | "coupons" | "customers" | "search" | "security">("orders");
+  const [searchDictItems, setSearchDictItems] = useState<Array<{ type: string; key: string; expansions?: string[]; words?: string[] }>>([]);
+  const [loadingDict, setLoadingDict] = useState(false);
+  const [rebuildingIndex, setRebuildingIndex] = useState(false);
+  const [rebuildResult, setRebuildResult] = useState<string | null>(null);
+  const [newSynKey, setNewSynKey] = useState("");
+  const [newSynExpansions, setNewSynExpansions] = useState("");
+  const [addingSyn, setAddingSyn] = useState(false);
+  const [searchTestQuery, setSearchTestQuery] = useState("");
+  const [searchTestResult, setSearchTestResult] = useState<any>(null);
+  const [testingSearch, setTestingSearch] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -166,6 +176,102 @@ export default function StandaloneAdminDashboard() {
       loadDashboardData();
     }
   }, [sessionInfo, loadDashboardData]);
+
+  const loadSearchDictionary = useCallback(async () => {
+    setLoadingDict(true);
+    try {
+      const res = await fetch("/api/search-dictionary");
+      const json = await res.json();
+      if (json.success && json.data?.items) {
+        setSearchDictItems(json.data.items);
+      }
+    } catch (e) {
+      console.warn("Failed to load search dictionary:", e);
+    } finally {
+      setLoadingDict(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "search") {
+      loadSearchDictionary();
+    }
+  }, [activeTab, loadSearchDictionary]);
+
+  const handleRebuildIndex = async () => {
+    setRebuildingIndex(true);
+    setRebuildResult("⏳ Scanning all products and generating inverted index tokens...");
+    try {
+      const res = await fetch("/api/rebuild-search-index", { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        setRebuildResult(`✅ Search Index Rebuilt Successfully! Indexed ${json.data?.totalIndexedEntries || "all"} entries across ${json.data?.totalProducts || products.length} products.`);
+      } else {
+        setRebuildResult(`❌ Rebuild failed: ${json.error || "Unknown error"}`);
+      }
+    } catch (err: any) {
+      setRebuildResult(`❌ Rebuild failed: ${err.message}`);
+    } finally {
+      setRebuildingIndex(false);
+    }
+  };
+
+  const handleAddSynonym = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSynKey.trim() || !newSynExpansions.trim()) return;
+    setAddingSyn(true);
+    try {
+      const expansions = newSynExpansions.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+      const res = await fetch("/api/search-dictionary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "synonym",
+          key: newSynKey.trim().toLowerCase(),
+          expansions,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setNewSynKey("");
+        setNewSynExpansions("");
+        loadSearchDictionary();
+      }
+    } catch (err) {
+      console.warn("Error adding synonym:", err);
+    } finally {
+      setAddingSyn(false);
+    }
+  };
+
+  const handleDeleteSynonym = async (key: string) => {
+    if (!confirm(`Delete synonym mapping for "${key}"?`)) return;
+    try {
+      await fetch("/api/search-dictionary", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "synonym", key }),
+      });
+      loadSearchDictionary();
+    } catch (err) {
+      console.warn("Error deleting synonym:", err);
+    }
+  };
+
+  const handleTestSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchTestQuery.trim()) return;
+    setTestingSearch(true);
+    try {
+      const res = await fetch(`https://gateway.roparts.in/api/v1/search?q=${encodeURIComponent(searchTestQuery.trim())}`);
+      const json = await res.json();
+      setSearchTestResult(json.data);
+    } catch (err: any) {
+      setSearchTestResult({ error: err.message });
+    } finally {
+      setTestingSearch(false);
+    }
+  };
 
   // Step 1: Submit Username & Password
   const handlePasswordStep = async (e: React.FormEvent) => {
@@ -1193,6 +1299,7 @@ export default function StandaloneAdminDashboard() {
             { id: "products", label: `🏷️ Products (${products.length})` },
             { id: "coupons", label: `🎟️ Coupons (${coupons.length})` },
             { id: "customers", label: `👥 Technicians & GPS` },
+            { id: "search", label: `🔍 Search Engine & Synonyms` },
             { id: "security", label: `🛡️ Google Authenticator` },
           ].map((tab) => (
             <button
@@ -1752,6 +1859,363 @@ export default function StandaloneAdminDashboard() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: SEARCH ENGINE & SYNONYMS */}
+        {activeTab === "search" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            {/* Header banner */}
+            <div
+              style={{
+                background: "#1e293b",
+                border: "1px solid #334155",
+                borderRadius: "16px",
+                padding: "1.5rem",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "1rem",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <h2 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0, color: "#fff" }}>
+                    🔍 Search Engine & Suggestion Index
+                  </h2>
+                  <span
+                    style={{
+                      background: "#065f46",
+                      color: "#6ee7b7",
+                      fontSize: "0.6875rem",
+                      fontWeight: 800,
+                      padding: "0.15rem 0.5rem",
+                      borderRadius: "999px",
+                    }}
+                  >
+                    Sub-30ms Inverted Index
+                  </span>
+                </div>
+                <p style={{ fontSize: "0.8125rem", color: "#94a3b8", margin: "0.35rem 0 0" }}>
+                  Multi-token ranking, typo tolerance (Damerau-Levenshtein), voice normalization, and synonym expansion.
+                </p>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <button
+                  onClick={handleRebuildIndex}
+                  disabled={rebuildingIndex}
+                  style={{
+                    background: rebuildingIndex
+                      ? "#475569"
+                      : "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "0.65rem 1.25rem",
+                    fontSize: "0.875rem",
+                    fontWeight: 800,
+                    cursor: rebuildingIndex ? "not-allowed" : "pointer",
+                    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                  }}
+                >
+                  {rebuildingIndex ? "⏳ Rebuilding Index..." : "⚡ Rebuild Inverted Search Index"}
+                </button>
+              </div>
+            </div>
+
+            {rebuildResult && (
+              <div
+                style={{
+                  background: rebuildResult.includes("✅") ? "#14532d" : "#7f1d1d",
+                  color: rebuildResult.includes("✅") ? "#86efac" : "#fecaca",
+                  padding: "0.75rem 1rem",
+                  borderRadius: "10px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 700,
+                }}
+              >
+                {rebuildResult}
+              </div>
+            )}
+
+            {/* Grid with 2 columns: Left = Synonyms, Right = Live Search Tester */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+              {/* Left Column: Synonyms & Aliases */}
+              <div
+                style={{
+                  background: "#1e293b",
+                  border: "1px solid #334155",
+                  borderRadius: "16px",
+                  padding: "1.25rem",
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", margin: "0 0 0.5rem" }}>
+                  📚 Synonyms & Alias Mappings
+                </h3>
+                <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "0 0 1rem" }}>
+                  Map terms so searching for a synonym automatically expands to matching catalog parts.
+                </p>
+
+                {/* Add Synonym Form */}
+                <form
+                  onSubmit={handleAddSynonym}
+                  style={{
+                    background: "#0f172a",
+                    border: "1px solid #334155",
+                    borderRadius: "12px",
+                    padding: "0.875rem",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  <div style={{ marginBottom: "0.5rem" }}>
+                    <label style={{ display: "block", fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700, marginBottom: "0.25rem" }}>
+                      Search Keyword / Trigger
+                    </label>
+                    <input
+                      required
+                      placeholder="e.g. smps or motor or pipe"
+                      value={newSynKey}
+                      onChange={(e) => setNewSynKey(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        background: "#1e293b",
+                        border: "1px solid #475569",
+                        color: "#fff",
+                        fontSize: "0.8125rem",
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <label style={{ display: "block", fontSize: "0.75rem", color: "#cbd5e1", fontWeight: 700, marginBottom: "0.25rem" }}>
+                      Target Expansions (comma separated)
+                    </label>
+                    <input
+                      required
+                      placeholder="e.g. adapter, power supply, 24v"
+                      value={newSynExpansions}
+                      onChange={(e) => setNewSynExpansions(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        background: "#1e293b",
+                        border: "1px solid #475569",
+                        color: "#fff",
+                        fontSize: "0.8125rem",
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={addingSyn}
+                    style={{
+                      width: "100%",
+                      padding: "0.55rem",
+                      borderRadius: "8px",
+                      border: "none",
+                      background: "#22c55e",
+                      color: "#fff",
+                      fontWeight: 800,
+                      fontSize: "0.8125rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {addingSyn ? "Adding..." : "+ Add Synonym Rule"}
+                  </button>
+                </form>
+
+                {/* Synonyms List */}
+                <div style={{ maxHeight: "360px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {searchDictItems.filter((i) => i.type === "synonym").length === 0 ? (
+                    <div style={{ fontSize: "0.8125rem", color: "#64748b", textAlign: "center", padding: "1.5rem" }}>
+                      No custom synonyms added yet. Default RO domain synonyms are active in search engine.
+                    </div>
+                  ) : (
+                    searchDictItems
+                      .filter((i) => i.type === "synonym")
+                      .map((item, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            background: "#0f172a",
+                            border: "1px solid #334155",
+                            borderRadius: "10px",
+                            padding: "0.625rem 0.875rem",
+                          }}
+                        >
+                          <div>
+                            <span
+                              style={{
+                                background: "rgba(56, 189, 248, 0.15)",
+                                color: "#38bdf8",
+                                padding: "0.15rem 0.45rem",
+                                borderRadius: "6px",
+                                fontWeight: 800,
+                                fontSize: "0.75rem",
+                              }}
+                            >
+                              {item.key}
+                            </span>
+                            <span style={{ margin: "0 0.5rem", color: "#64748b", fontSize: "0.75rem" }}>→</span>
+                            <span style={{ fontSize: "0.75rem", color: "#cbd5e1" }}>
+                              {(item.expansions || []).join(", ")}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteSynonym(item.key)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#f87171",
+                              cursor: "pointer",
+                              fontSize: "0.75rem",
+                              padding: "0.2rem 0.5rem",
+                            }}
+                            title="Delete synonym"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Live Search Engine Debugger */}
+              <div
+                style={{
+                  background: "#1e293b",
+                  border: "1px solid #334155",
+                  borderRadius: "16px",
+                  padding: "1.25rem",
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#fff", margin: "0 0 0.5rem" }}>
+                  🧪 Live Relevance Search Tester
+                </h3>
+                <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "0 0 1rem" }}>
+                  Simulate search queries directly against the live AWS inverted index to inspect tokens & scores.
+                </p>
+
+                <form onSubmit={handleTestSearch} style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <input
+                    value={searchTestQuery}
+                    onChange={(e) => setSearchTestQuery(e.target.value)}
+                    placeholder="Try '1000 gpd membrane' or 'sedimant' or 'pump'..."
+                    style={{
+                      flex: 1,
+                      padding: "0.6rem 0.875rem",
+                      borderRadius: "10px",
+                      background: "#0f172a",
+                      border: "1px solid #475569",
+                      color: "#fff",
+                      fontSize: "0.875rem",
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={testingSearch}
+                    style={{
+                      background: "#38bdf8",
+                      color: "#0f172a",
+                      border: "none",
+                      borderRadius: "10px",
+                      padding: "0.6rem 1rem",
+                      fontWeight: 800,
+                      fontSize: "0.875rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {testingSearch ? "Testing..." : "Test 🔍"}
+                  </button>
+                </form>
+
+                {searchTestResult && (
+                  <div
+                    style={{
+                      background: "#0f172a",
+                      border: "1px solid #334155",
+                      borderRadius: "12px",
+                      padding: "1rem",
+                      maxHeight: "360px",
+                      overflowY: "auto",
+                    }}
+                  >
+                    {searchTestResult.keywords && (
+                      <div style={{ marginBottom: "0.75rem" }}>
+                        <div style={{ fontSize: "0.6875rem", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>
+                          Parsed Search Tokens
+                        </div>
+                        <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
+                          {searchTestResult.keywords.map((kw: string, i: number) => (
+                            <span
+                              key={i}
+                              style={{
+                                background: "#334155",
+                                color: "#f8fafc",
+                                padding: "0.15rem 0.45rem",
+                                borderRadius: "4px",
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ fontSize: "0.6875rem", color: "#94a3b8", textTransform: "uppercase", fontWeight: 700, marginBottom: "0.5rem" }}>
+                      Top Ranked Results ({searchTestResult.total || 0})
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      {(searchTestResult.results || []).slice(0, 5).map((prod: any, i: number) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            background: "#1e293b",
+                            padding: "0.5rem 0.75rem",
+                            borderRadius: "8px",
+                            border: "1px solid #334155",
+                          }}
+                        >
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {prod.name}
+                            </div>
+                            <div style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>
+                              {prod.sku} • {prod.brand || "Drop Purity"}
+                            </div>
+                          </div>
+                          <div style={{ textAlign: "right", marginLeft: "0.75rem" }}>
+                            <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#4ade80" }}>
+                              Score: {prod.relevanceScore}
+                            </div>
+                            <div style={{ fontSize: "0.6875rem", color: "#cbd5e1" }}>
+                              {formatPrice(prod.sellingPrice)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
