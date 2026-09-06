@@ -1,7 +1,9 @@
 function getBackendUrl(): string {
-  // Production on Vercel or public domain: ALWAYS use production API domain
+  // Production: route admin operations directly to Lambda API Gateway
+  // ponytail: api.roparts.in is a CNAME to Vercel which has NO DynamoDB creds.
+  // Admin writes must go straight to Lambda (IAM role gives DynamoDB access).
   if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-    const prodUrl = process.env.API_GATEWAY_URL || "https://api.roparts.in";
+    const prodUrl = process.env.API_GATEWAY_URL || "https://xm6bzs5w47.execute-api.ap-south-1.amazonaws.com";
     const clean = prodUrl.startsWith("http") ? prodUrl : `https://${prodUrl}`;
     return clean.endsWith("/api/v1") ? clean : `${clean}/api/v1`;
   }
@@ -36,8 +38,14 @@ export async function proxyToBackend(endpoint: string, options: RequestInit = {}
  */
 export async function clearLiveStorefrontCache(slug?: string): Promise<boolean> {
   try {
-    const res = await proxyToBackend("/revalidate", {
+    const storefrontUrl =
+      process.env.NEXT_PUBLIC_STOREFRONT_URL ||
+      (process.env.NODE_ENV === "production" || process.env.VERCEL
+        ? "https://roparts.in"
+        : "http://localhost:3000");
+    const res = await fetch(`${storefrontUrl}/api/v1/revalidate`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug }),
     });
     return res.ok;
