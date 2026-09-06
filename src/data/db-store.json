@@ -187,7 +187,7 @@
       "name": "ubuyb",
       "longDescription": "ubuyb",
       "weight": 500,
-      "sellingPrice": 74900,
+      "sellingPrice": 1400,
       "shortDescription": "Tested & Verified Admin Update",
       "categoryId": "cat-membrane",
       "seoKeywords": [
@@ -212,7 +212,7 @@
       "isFeatured": false,
       "seoDescription": "ubuyb",
       "lowStockThreshold": 10,
-      "updatedAt": "2026-09-06T08:42:49.731Z",
+      "updatedAt": "2026-09-06T10:33:21.788Z",
       "images": [
         "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
       ],
