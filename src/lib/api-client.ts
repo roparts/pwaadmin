@@ -6,7 +6,7 @@ function getBackendUrl(): string {
     const prodUrl =
       process.env.API_GATEWAY_URL ||
       process.env.API_BACKEND_URL ||
-      "https://t61cxjk61c.execute-api.ap-south-1.amazonaws.com";
+      "https://admin-api.roparts.in";
     return prodUrl.startsWith("http") ? prodUrl : `https://${prodUrl}`;
   }
   // Local development: use NEXT_PUBLIC_API_URL or localhost:3000
