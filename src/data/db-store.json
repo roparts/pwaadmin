@@ -1,6 +1,44 @@
 {
   "products": [
     {
+      "id": "prod-mtpkj56t",
+      "sku": "RP-MTPKJ56T",
+      "name": "RO Carbon Block Filter 10 Inch",
+      "slug": "ro-carbon-block-filter-10-inch",
+      "shortDescription": "Premium coconut shell activated carbon block filter.",
+      "longDescription": "High absorption 10 inch carbon block filter for domestic RO systems.",
+      "mainCategory": "domestic",
+      "categoryId": "cat-membrane",
+      "brand": "Drop Purity",
+      "source": "Direct Factory Sourcing",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "specifications": {
+        "dimensions": "Standard",
+        "brand": "Drop Purity"
+      },
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "weight": 500,
+      "hsnCode": "84219900",
+      "gstRate": 18,
+      "sellingPrice": 39900,
+      "mrp": 69900,
+      "stock": 40,
+      "lowStockThreshold": 10,
+      "status": "active",
+      "isFeatured": false,
+      "isBestseller": false,
+      "seoTitle": "RO Carbon Block Filter 10 Inch | ROParts.in",
+      "seoDescription": "Premium coconut shell activated carbon block filter.",
+      "seoKeywords": [],
+      "relatedProductIds": [],
+      "createdAt": "2026-09-06T08:47:17.765Z",
+      "updatedAt": "2026-09-06T08:47:17.765Z"
+    },
+    {
       "id": "prod-mtpj1mvy",
       "sku": "RP-MTPJ1MVY",
       "name": "Ro Pump",
@@ -141,42 +179,45 @@
       "sku": "RP-MTI5Z67T"
     },
     {
-      "id": "prod_mtcwohmp",
-      "sku": "RP-MTCWOHMP",
-      "name": "ubuyb",
-      "slug": "ubuyb",
-      "categoryId": "cat-membrane",
-      "brand": "Drop Purity",
-      "images": [
-        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
-      ],
-      "sellingPrice": 45000,
+      "seoTitle": "ubuyb | ROParts.in",
+      "relatedProductIds": [],
+      "status": "active",
       "mrp": 50000,
       "stock": 50,
-      "status": "active",
-      "shortDescription": "ubuyb",
+      "name": "ubuyb",
       "longDescription": "ubuyb",
-      "mainCategory": "domestic",
-      "source": "Direct Factory Sourcing",
-      "specifications": {},
-      "compatibility": [
-        "Standard RO Systems"
-      ],
       "weight": 500,
-      "hsnCode": "84219900",
-      "gstRate": 18,
-      "lowStockThreshold": 10,
-      "isFeatured": false,
-      "isBestseller": false,
-      "seoTitle": "ubuyb | ROParts.in",
-      "seoDescription": "ubuyb",
+      "sellingPrice": 74900,
+      "shortDescription": "Tested & Verified Admin Update",
+      "categoryId": "cat-membrane",
       "seoKeywords": [
         "ro spare parts",
         "water purifier spares"
       ],
-      "relatedProductIds": [],
+      "id": "prod_mtcwohmp",
+      "compatibility": [
+        "Standard RO Systems"
+      ],
+      "specifications": {
+        "dimensions": "Standard",
+        "brand": "Drop Purity"
+      },
+      "slug": "ubuyb",
       "createdAt": "2026-08-28T12:06:22.273Z",
-      "updatedAt": "2026-08-28T12:20:31.415Z"
+      "brand": "Drop Purity",
+      "source": "Direct Factory Sourcing",
+      "mainCategory": "domestic",
+      "isBestseller": false,
+      "gstRate": 18,
+      "isFeatured": false,
+      "seoDescription": "ubuyb",
+      "lowStockThreshold": 10,
+      "updatedAt": "2026-09-06T08:42:49.731Z",
+      "images": [
+        "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
+      ],
+      "hsnCode": "84219900",
+      "sku": "RP-MTCWOHMP"
     },
     {
       "id": "prod-001",
