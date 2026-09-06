@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
     console.warn("Could not fetch live products from backend proxy, using local store:", err);
   }
 
-  // 2. Fallback to local store
-  if (products.length === 0) {
+  // 2. Fallback to local store (Development only)
+  if (products.length === 0 && process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     const store = loadDbStore();
     products = store.products || [];
   }
@@ -181,40 +181,33 @@ export async function PUT(request: NextRequest) {
       if (data?.data?.product) {
         liveUpdatedProduct = data.data.product;
       }
-    }
-  } catch (err) {
-    console.warn("Proxying product update to central backend failed:", err);
-  }
-
-  // 2. Also update local store
-  const store = loadDbStore();
-  const products = store.products || [];
-  const idx = products.findIndex((p) => p.id === body.id);
-
-  if (idx !== -1) {
-    const existing = products[idx];
-    const updated: Product = {
-      ...existing,
-      ...body,
-      sellingPrice: body.sellingPrice !== undefined ? Math.round(Number(body.sellingPrice)) : existing.sellingPrice,
-      mrp: body.mrp !== undefined ? Math.round(Number(body.mrp)) : existing.mrp,
-      stock: body.stock !== undefined ? Number(body.stock) : existing.stock,
-      updatedAt: new Date().toISOString(),
-    };
-    products[idx] = updated;
-    saveDbStore({ products });
-    if (!liveUpdatedProduct) liveUpdatedProduct = updated;
-  } else if (liveUpdatedProduct) {
-    const existingIdx = products.findIndex((p) => p.id === liveUpdatedProduct!.id);
-    if (existingIdx >= 0) {
-      products[existingIdx] = liveUpdatedProduct;
     } else {
-      products.unshift(liveUpdatedProduct);
+      const errData = await res.json().catch(() => ({}));
+      return NextResponse.json(
+        { success: false, error: errData.error?.message || errData.error || "Backend update failed" },
+        { status: res.status }
+      );
     }
-    saveDbStore({ products });
+  } catch (err: any) {
+    console.error("Proxying product update to central backend failed:", err);
+    return NextResponse.json(
+      { success: false, error: `Backend service unavailable: ${err.message || err}` },
+      { status: 502 }
+    );
   }
 
-  if (!liveUpdatedProduct && idx === -1) {
+  // 2. In local development only, sync local store snapshot
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    const store = loadDbStore();
+    const products = store.products || [];
+    const idx = products.findIndex((p) => p.id === body.id);
+    if (idx !== -1) {
+      products[idx] = liveUpdatedProduct || products[idx];
+      saveDbStore({ products });
+    }
+  }
+
+  if (!liveUpdatedProduct) {
     return NextResponse.json({ success: false, error: `Product ${body.id} not found` }, { status: 404 });
   }
 
