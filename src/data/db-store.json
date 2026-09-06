@@ -15,8 +15,8 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
       ],
       "specifications": {
-        "dimensions": "Standard",
-        "brand": "Drop Purity"
+        "brand": "Drop Purity",
+        "dimensions": "Standard"
       },
       "compatibility": [
         "Standard RO Systems"
@@ -157,8 +157,8 @@
         "Standard RO Systems"
       ],
       "specifications": {
-        "dimensions": "Standard",
-        "brand": "Drop Purity"
+        "brand": "Drop Purity",
+        "dimensions": "Standard"
       },
       "slug": "adapter",
       "brand": "Drop Purity",
@@ -187,7 +187,7 @@
       "name": "ubuyb",
       "longDescription": "ubuyb",
       "weight": 500,
-      "sellingPrice": 1400,
+      "sellingPrice": 9800,
       "shortDescription": "Tested & Verified Admin Update",
       "categoryId": "cat-membrane",
       "seoKeywords": [
@@ -199,8 +199,8 @@
         "Standard RO Systems"
       ],
       "specifications": {
-        "dimensions": "Standard",
-        "brand": "Drop Purity"
+        "brand": "Drop Purity",
+        "dimensions": "Standard"
       },
       "slug": "ubuyb",
       "createdAt": "2026-08-28T12:06:22.273Z",
@@ -212,7 +212,7 @@
       "isFeatured": false,
       "seoDescription": "ubuyb",
       "lowStockThreshold": 10,
-      "updatedAt": "2026-09-06T10:33:21.788Z",
+      "updatedAt": "2026-09-06T13:13:06.732Z",
       "images": [
         "https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"
       ],
@@ -235,13 +235,13 @@
         "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80"
       ],
       "specifications": {
-        "Capacity": "75 GPD",
-        "Type": "TFC (Thin Film Composite)",
-        "Rejection Rate": "95%+",
-        "Operating Pressure": "40-80 PSI",
-        "Max Temperature": "45°C",
         "pH Range": "2-11",
-        "Size": "1812 (Standard)"
+        "Size": "1812 (Standard)",
+        "Operating Pressure": "40-80 PSI",
+        "Capacity": "75 GPD",
+        "Rejection Rate": "95%+",
+        "Max Temperature": "45°C",
+        "Type": "TFC (Thin Film Composite)"
       },
       "compatibility": [
         "Kent Grand Plus",
@@ -253,8 +253,8 @@
       ],
       "weight": 250,
       "dimensions": {
-        "l": 30,
         "w": 5,
+        "l": 30,
         "h": 5
       },
       "hsnCode": "8421990",
@@ -280,7 +280,7 @@
         "prod-009"
       ],
       "createdAt": "2024-01-15T10:00:00Z",
-      "updatedAt": "2026-09-01T04:30:34.888Z"
+      "updatedAt": "2026-09-06T10:08:33.266Z"
     },
     {
       "id": "prod-002",
@@ -301,8 +301,8 @@
         "Type": "TFC (Thin Film Composite)",
         "Rejection Rate": "96%+",
         "Operating Pressure": "40-100 PSI",
-        "Max Temperature": "45°C",
         "pH Range": "2-11",
+        "Max Temperature": "45°C",
         "Size": "1812 (Standard)"
       },
       "compatibility": [
@@ -357,10 +357,10 @@
       ],
       "specifications": {
         "Capacity": "80 GPD",
-        "Type": "TFC",
         "Rejection Rate": "95%+",
         "Operating Pressure": "40-80 PSI",
-        "Size": "1812 (Standard)"
+        "Size": "1812 (Standard)",
+        "Type": "TFC"
       },
       "compatibility": [
         "Kent Pearl",
@@ -405,12 +405,12 @@
         "https://placehold.co/600x600/2d3748/ffffff?text=Sediment+Filter"
       ],
       "specifications": {
-        "Size": "10\" standard",
         "Micron": "5 micron",
-        "Material": "Polypropylene (PP)",
+        "Replacement Cycle": "3-6 months",
+        "Size": "10\" standard",
         "Flow Rate": "2-4 LPM",
         "Max Temperature": "52°C",
-        "Replacement Cycle": "3-6 months"
+        "Material": "Polypropylene (PP)"
       },
       "compatibility": [
         "All standard 10\" filter housings",
@@ -459,11 +459,11 @@
         "https://images.unsplash.com/photo-1584771145729-0bd9fda6529b?w=800&auto=format&fit=crop&q=80"
       ],
       "specifications": {
-        "Size": "10\" standard",
-        "Micron": "1 micron",
         "Material": "Melt-blown Polypropylene",
         "Flow Rate": "2-3 LPM",
-        "Replacement Cycle": "3-6 months"
+        "Replacement Cycle": "3-6 months",
+        "Size": "10\" standard",
+        "Micron": "1 micron"
       },
       "compatibility": [
         "All standard 10\" filter housings"
@@ -517,11 +517,11 @@
         "All standard 10\" filter housings"
       ],
       "specifications": {
-        "Chlorine Removal": "99%+",
-        "Size": "10\" standard",
-        "Material": "Coconut Shell Activated Carbon",
         "Micron": "5 micron",
-        "Replacement Cycle": "6-12 months"
+        "Replacement Cycle": "6-12 months",
+        "Chlorine Removal": "99%+",
+        "Material": "Coconut Shell Activated Carbon",
+        "Size": "10\" standard"
       },
       "slug": "cto-carbon-block-filter-10-inch",
       "createdAt": "2024-01-25T10:00:00Z",
@@ -555,11 +555,11 @@
         "https://placehold.co/600x600/2d3748/ffffff?text=Inline+Post+Carbon"
       ],
       "specifications": {
-        "Type": "Inline T33",
-        "Material": "Coconut Shell GAC",
-        "Connection": "1/4\" push-fit",
         "Flow Rate": "1-2 LPM",
-        "Replacement Cycle": "6-12 months"
+        "Connection": "1/4\" push-fit",
+        "Material": "Coconut Shell GAC",
+        "Replacement Cycle": "6-12 months",
+        "Type": "Inline T33"
       },
       "compatibility": [
         "All domestic RO systems with 1/4\" connections"
@@ -603,11 +603,11 @@
         "https://placehold.co/600x600/2d3748/ffffff?text=UF+Membrane"
       ],
       "specifications": {
-        "Type": "Hollow Fiber UF",
-        "Micron": "0.01 micron",
         "Pore Size": "10 nm",
         "Flow Rate": "1-2 LPM",
-        "Replacement Cycle": "12-18 months"
+        "Replacement Cycle": "12-18 months",
+        "Type": "Hollow Fiber UF",
+        "Micron": "0.01 micron"
       },
       "compatibility": [
         "Most domestic UF/RO+UV+UF systems"
@@ -651,12 +651,12 @@
         "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80"
       ],
       "specifications": {
-        "Voltage": "24V DC",
         "Suitable For": "75 GPD systems",
+        "Noise Level": "< 55 dB",
         "Max Pressure": "100 PSI",
-        "Type": "Diaphragm",
         "Self-priming": "Yes",
-        "Noise Level": "< 55 dB"
+        "Voltage": "24V DC",
+        "Type": "Diaphragm"
       },
       "compatibility": [
         "Most 75 GPD domestic RO systems"
@@ -701,11 +701,11 @@
         "https://placehold.co/600x600/2c5282/ffffff?text=Booster+Pump+100"
       ],
       "specifications": {
-        "Voltage": "24V DC",
-        "Suitable For": "100 GPD systems",
+        "Self-priming": "Yes",
         "Max Pressure": "120 PSI",
+        "Voltage": "24V DC",
         "Type": "Diaphragm",
-        "Self-priming": "Yes"
+        "Suitable For": "100 GPD systems"
       },
       "compatibility": [
         "Most 100 GPD domestic RO systems"
@@ -749,10 +749,10 @@
       ],
       "specifications": {
         "Input": "100-240V AC, 50/60Hz",
-        "Output": "24V DC, 2.5A",
-        "Power": "60W",
         "Protection": "Over-voltage, Over-current, Short-circuit",
-        "Connector": "Standard barrel connector"
+        "Connector": "Standard barrel connector",
+        "Power": "60W",
+        "Output": "24V DC, 2.5A"
       },
       "compatibility": [
         "Most 24V RO booster pumps"
@@ -797,11 +797,11 @@
         "https://placehold.co/600x600/2a4365/ffffff?text=Membrane+Housing"
       ],
       "specifications": {
-        "Size": "1812",
-        "Material": "High-grade Plastic",
-        "Connection": "1/4\" push-fit",
         "Max Pressure": "100 PSI",
-        "End Caps": "Included"
+        "End Caps": "Included",
+        "Size": "1812",
+        "Connection": "1/4\" push-fit",
+        "Material": "High-grade Plastic"
       },
       "compatibility": [
         "All 1812 size RO membranes"
@@ -846,12 +846,12 @@
         "https://placehold.co/600x600/2a4365/ffffff?text=Filter+Housing"
       ],
       "specifications": {
-        "Size": "10\" standard",
-        "Connection": "1/4\" inlet/outlet",
-        "Material": "Food-grade PP",
-        "Max Pressure": "80 PSI",
         "Bracket": "Included",
-        "Wrench": "Included"
+        "Material": "Food-grade PP",
+        "Connection": "1/4\" inlet/outlet",
+        "Wrench": "Included",
+        "Size": "10\" standard",
+        "Max Pressure": "80 PSI"
       },
       "compatibility": [
         "All standard 10\" filter cartridges"
@@ -896,11 +896,11 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=Solenoid+Valve"
       ],
       "specifications": {
-        "Voltage": "24V DC",
-        "Type": "Normally Closed",
+        "Material": "Plastic body, rubber seal",
         "Connection": "1/4\" push-fit",
-        "Max Pressure": "100 PSI",
-        "Material": "Plastic body, rubber seal"
+        "Type": "Normally Closed",
+        "Voltage": "24V DC",
+        "Max Pressure": "100 PSI"
       },
       "compatibility": [
         "All domestic RO systems"
@@ -944,10 +944,10 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=Flow+Restrictor"
       ],
       "specifications": {
-        "Flow Rate": "450 ML",
         "Suitable For": "75 GPD membranes",
         "Connection": "1/4\" push-fit",
-        "Material": "Plastic with capillary tube"
+        "Material": "Plastic with capillary tube",
+        "Flow Rate": "450 ML"
       },
       "compatibility": [
         "75 GPD RO systems"
@@ -992,9 +992,9 @@
       ],
       "specifications": {
         "Size": "1/4\" x 1/4\"",
-        "Type": "Push-fit Elbow",
+        "Max Pressure": "80 PSI",
         "Material": "Food-grade PP",
-        "Max Pressure": "80 PSI"
+        "Type": "Push-fit Elbow"
       },
       "compatibility": [
         "All 1/4\" RO tubing"
@@ -1039,8 +1039,8 @@
       ],
       "specifications": {
         "Capacity": "8 litres",
-        "Material": "Food-grade PE liner, steel shell",
-        "Connection": "1/4\" threaded"
+        "Connection": "1/4\" threaded",
+        "Material": "Food-grade PE liner, steel shell"
       },
       "compatibility": [
         "All domestic RO systems"
@@ -1089,8 +1089,8 @@
         "https://placehold.co/600x600/2a4365/ffffff?text=Install+Kit"
       ],
       "specifications": {
-        "Includes": "Pipe (5m), 4x Elbow, 2x Tee, Inlet valve, Drain clamp, Teflon tape",
-        "Pipe Size": "1/4\""
+        "Pipe Size": "1/4\"",
+        "Includes": "Pipe (5m), 4x Elbow, 2x Tee, Inlet valve, Drain clamp, Teflon tape"
       },
       "compatibility": [
         "All domestic RO systems"
@@ -1133,11 +1133,11 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=4040+Commercial+Membrane"
       ],
       "specifications": {
-        "Capacity": "2200 GPD (Approx 350-500 LPH)",
+        "Operating Pressure": "150-225 PSI",
         "Type": "TFC Commercial",
-        "Rejection Rate": "99%+",
+        "Capacity": "2200 GPD (Approx 350-500 LPH)",
         "Size": "4040 (4 inch dia x 40 inch length)",
-        "Operating Pressure": "150-225 PSI"
+        "Rejection Rate": "99%+"
       },
       "compatibility": [
         "Standard 4040 FRP / SS membrane housings",
@@ -1187,11 +1187,11 @@
         "https://placehold.co/600x600/2c5282/ffffff?text=Vane+Pump+50LPH"
       ],
       "specifications": {
-        "Voltage": "230V AC Single Phase",
-        "Flow Rate": "50 LPH",
         "Max Pressure": "150 PSI",
         "Type": "Rotary Vane",
-        "Head Material": "Forged Brass"
+        "Head Material": "Forged Brass",
+        "Voltage": "230V AC Single Phase",
+        "Flow Rate": "50 LPH"
       },
       "compatibility": [
         "100-250 LPH Commercial RO plants"
@@ -1235,10 +1235,10 @@
         "https://placehold.co/600x600/2a4365/ffffff?text=4040+FRP+Housing"
       ],
       "specifications": {
-        "Size": "4040 Single Element",
-        "Material": "FRP (Fiber Reinforced Polymer)",
         "Ports": "3/4\" Stainless Steel",
-        "Max Pressure": "300 PSI"
+        "Max Pressure": "300 PSI",
+        "Material": "FRP (Fiber Reinforced Polymer)",
+        "Size": "4040 Single Element"
       },
       "compatibility": [
         "All standard 4040 RO membrane elements"
@@ -1281,10 +1281,10 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=Flow+Sensor"
       ],
       "specifications": {
-        "Type": "Hall Effect Digital",
-        "Operating Voltage": "5-24V DC",
         "Flow Range": "1-30 L/min",
-        "Connection": "1/2\" threaded"
+        "Connection": "1/2\" threaded",
+        "Type": "Hall Effect Digital",
+        "Operating Voltage": "5-24V DC"
       },
       "compatibility": [
         "Commercial RO control panels and controllers"
@@ -1326,12 +1326,12 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=8040+Industrial+Membrane"
       ],
       "specifications": {
-        "Capacity": "10,500 GPD (Approx 1600 LPH)",
-        "Type": "Polyamide Thin-Film Composite",
-        "Rejection Rate": "99.5%",
         "Size": "8040 (8 inch dia x 40 inch length)",
+        "Max Operating Pressure": "600 PSI",
+        "Rejection Rate": "99.5%",
         "Active Area": "400 sq ft",
-        "Max Operating Pressure": "600 PSI"
+        "Capacity": "10,500 GPD (Approx 1600 LPH)",
+        "Type": "Polyamide Thin-Film Composite"
       },
       "compatibility": [
         "Standard 8040 FRP pressure vessels",
@@ -1381,9 +1381,9 @@
         "https://placehold.co/600x600/2a4365/ffffff?text=8040+FRP+Vessel"
       ],
       "specifications": {
-        "Size": "8040 1-Element",
-        "Material": "Fiber Reinforced Plastic (FRP)",
         "Port Type": "Side Port (1.5 inch Feed / 1 inch Permeate)",
+        "Material": "Fiber Reinforced Plastic (FRP)",
+        "Size": "8040 1-Element",
         "Design Pressure": "450 PSI"
       },
       "compatibility": [
@@ -1427,11 +1427,11 @@
         "https://placehold.co/600x600/2c5282/ffffff?text=Dosing+Pump+0-6LPH"
       ],
       "specifications": {
-        "Discharge Rate": "0-6 LPH (Adjustable stroke frequency)",
-        "Max Pressure": "5 Bar",
+        "Includes": "Suction & discharge tubing, foot valve, injection valve",
         "Power": "230V AC, 50Hz, 30W",
-        "Head Material": "PTFE / PVDF / Polypropylene",
-        "Includes": "Suction & discharge tubing, foot valve, injection valve"
+        "Max Pressure": "5 Bar",
+        "Discharge Rate": "0-6 LPH (Adjustable stroke frequency)",
+        "Head Material": "PTFE / PVDF / Polypropylene"
       },
       "compatibility": [
         "All industrial & commercial RO plants for chemical dosing"
@@ -1475,12 +1475,12 @@
         "https://placehold.co/600x600/1a365d/ffffff?text=Rotameter+1500LPH"
       ],
       "specifications": {
-        "Range": "100 - 1500 LPH",
-        "Mounting": "Panel Mount",
-        "Connection": "1/2\" BSP Male / Female",
-        "Body": "Machined Acrylic Block",
         "Float": "316 Stainless Steel",
-        "Max Pressure": "10 Bar"
+        "Range": "100 - 1500 LPH",
+        "Max Pressure": "10 Bar",
+        "Connection": "1/2\" BSP Male / Female",
+        "Mounting": "Panel Mount",
+        "Body": "Machined Acrylic Block"
       },
       "compatibility": [
         "Industrial RO control panels"
