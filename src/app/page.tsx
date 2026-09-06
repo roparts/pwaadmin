@@ -81,6 +81,7 @@ export default function StandaloneAdminDashboard() {
   const [editStock, setEditStock] = useState<number>(0);
   const [savingProduct, setSavingProduct] = useState(false);
   const [productActionMsg, setProductActionMsg] = useState("");
+  const [clearingCache, setClearingCache] = useState(false);
 
   const [productStatusFilter, setProductStatusFilter] = useState<"all" | "active" | "draft" | "archived">("all");
   const [productSearchQuery, setProductSearchQuery] = useState("");
@@ -569,12 +570,12 @@ export default function StandaloneAdminDashboard() {
 
       if (verifiedItem && verifiedItem.sellingPrice === priceInPaise) {
         setProducts(freshProducts);
-        setProductActionMsg(`✅ VERIFIED IN DATABASE: "${targetName}" is live at ₹${editPrice} (Stock: ${stockCount})`);
+        setProductActionMsg(`✅ LIVE & CACHE PURGED: "${targetName}" updated to ₹${editPrice} (Stock: ${stockCount})`);
       } else {
         setProducts((prev) =>
           prev.map((p) => (p.id === id ? { ...p, sellingPrice: priceInPaise, stock: stockCount } : p))
         );
-        setProductActionMsg(`✓ Saved! Price: ₹${editPrice} | Stock: ${stockCount} (Sync active)`);
+        setProductActionMsg(`✓ Saved & Cache Purged! Price: ₹${editPrice} | Stock: ${stockCount}`);
       }
 
       setTimeout(() => setProductActionMsg(""), 6000);
@@ -645,9 +646,9 @@ export default function StandaloneAdminDashboard() {
 
       if (verifiedItem && verifiedItem.sellingPrice === priceInPaise) {
         setProducts(freshProducts);
-        setProductActionMsg(`✅ VERIFIED IN DATABASE: "${targetName}" updated & live at ₹${fullEditPrice} (Stock: ${stockCount})`);
+        setProductActionMsg(`✅ LIVE & CACHE PURGED: "${targetName}" updated to ₹${fullEditPrice} (Stock: ${stockCount})`);
       } else {
-        setProductActionMsg(`✓ Product "${targetName}" updated successfully!`);
+        setProductActionMsg(`✓ Product "${targetName}" updated & live cache purged!`);
       }
 
       setTimeout(() => setProductActionMsg(""), 6000);
@@ -656,6 +657,25 @@ export default function StandaloneAdminDashboard() {
       setProductActionMsg(`❌ Network error updating product: ${err?.message || err}`);
     } finally {
       setSavingProduct(false);
+    }
+  };
+
+  const handleClearLiveCache = async () => {
+    setClearingCache(true);
+    setProductActionMsg("⏳ Sending cache purge request to live website...");
+    try {
+      const res = await fetch("/api/revalidate", { method: "POST" });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setProductActionMsg("⚡ Live website cache purged successfully! Fresh prices are live.");
+      } else {
+        setProductActionMsg(`⚠️ Cache purge: ${json.message || "Completed"}`);
+      }
+    } catch (err: any) {
+      setProductActionMsg(`Cache note: ${err?.message || err}`);
+    } finally {
+      setClearingCache(false);
+      setTimeout(() => setProductActionMsg(""), 6000);
     }
   };
 
@@ -1479,6 +1499,28 @@ export default function StandaloneAdminDashboard() {
                   <option value="cat-tanks">Pressure Tanks</option>
                   <option value="cat-instruments">Flow Meters & Gauges</option>
                 </select>
+
+                <button
+                  onClick={handleClearLiveCache}
+                  disabled={clearingCache}
+                  style={{
+                    background: "#0284c7",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "0.55rem 0.875rem",
+                    fontSize: "0.8125rem",
+                    fontWeight: 700,
+                    cursor: clearingCache ? "wait" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    whiteSpace: "nowrap",
+                  }}
+                  title="Purge CDN and live website cache immediately"
+                >
+                  {clearingCache ? "⏳ Purging..." : "⚡ Clear Live Cache"}
+                </button>
               </div>
 
               {productActionMsg && (

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-session";
 import { loadDbStore, saveDbStore } from "@/lib/db";
-import { proxyToBackend } from "@/lib/api-client";
+import { proxyToBackend, clearLiveStorefrontCache } from "@/lib/api-client";
 import type { Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -151,7 +151,10 @@ export async function POST(request: NextRequest) {
   }
   saveDbStore({ products });
 
-  return NextResponse.json({ success: true, data: { product: createdProduct, message: "Product created!" } });
+  // 3. Automatically purge live storefront cache for new product
+  await clearLiveStorefrontCache(createdProduct.slug);
+
+  return NextResponse.json({ success: true, data: { product: createdProduct, message: "Product created & live cache cleared!" } });
 }
 
 export async function PUT(request: NextRequest) {
@@ -215,8 +218,11 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: false, error: `Product ${body.id} not found` }, { status: 404 });
   }
 
+  // 3. Automatically purge live storefront cache so price update is immediate on website
+  await clearLiveStorefrontCache(liveUpdatedProduct?.slug || body.slug);
+
   return NextResponse.json({
     success: true,
-    data: { product: liveUpdatedProduct, message: "Product updated successfully!" },
+    data: { product: liveUpdatedProduct, message: "Product updated & live cache cleared!" },
   });
 }

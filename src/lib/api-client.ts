@@ -18,3 +18,19 @@ export async function proxyToBackend(endpoint: string, options: RequestInit = {}
     throw err;
   }
 }
+
+/**
+ * Small function to clear live website cache when price/product is updated from admin
+ */
+export async function clearLiveStorefrontCache(slug?: string): Promise<boolean> {
+  try {
+    const res = await proxyToBackend("/revalidate", {
+      method: "POST",
+      body: JSON.stringify({ slug }),
+    });
+    return res.ok;
+  } catch (err) {
+    console.warn("clearLiveStorefrontCache warning:", err);
+    return false;
+  }
+}
