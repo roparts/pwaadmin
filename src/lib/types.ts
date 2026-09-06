@@ -175,3 +175,49 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CartItemDetail {
+  productId: string;
+  name: string;
+  sku?: string;
+  sellingPrice: number;
+  mrp?: number;
+  image?: string;
+  quantity: number;
+  lineTotal: number;
+  stock?: number;
+}
+
+export interface ActiveCartInfo {
+  sessionId: string;
+  items: CartItemDetail[];
+  itemCount: number;
+  subtotal: number;
+  updatedAt?: number | string;
+  customer?: {
+    name?: string;
+    mobile?: string;
+    email?: string;
+  } | null;
+}
+
+export interface CustomerProfile {
+  id: string;
+  mobile: string;
+  name: string;
+  email?: string;
+  addresses: Address[];
+  totalOrders: number;
+  totalSpent: number;
+  lastOrderDate?: string;
+  orders: Order[];
+  sessions?: string[];
+  activeCart?: ActiveCartInfo | null;
+}
+
+export interface CustomerStats {
+  totalCustomers: number;
+  totalRevenue: number;
+  activeCartsCount: number;
+  repeatCustomers: number;
+}
