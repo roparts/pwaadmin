@@ -69,10 +69,15 @@ export async function POST(request: NextRequest) {
   const products = store.products || [];
 
   const normName = String(body.name || "").trim().toLowerCase();
-  const normSlug = String(body.name || "")
+  const normSlug = (body.slug && String(body.slug).trim()) || String(body.name || "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+  const normSku = (body.sku && String(body.sku).trim()) || `RP-${Date.now().toString(36).toUpperCase()}`;
+
+  // Ensure body has slug and sku for backend proxy
+  body.slug = normSlug;
+  body.sku = normSku;
 
   const existingProduct = products.find(
     (p) =>

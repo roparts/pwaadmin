@@ -78,9 +78,18 @@ export default function StandaloneAdminDashboard() {
   const [guestCarts, setGuestCarts] = useState<ActiveCartInfo[]>([]);
   const [customerStats, setCustomerStats] = useState<CustomerStats | null>(null);
   const [customerSearchQuery, setCustomerSearchQuery] = useState("");
-  const [customerFilter, setCustomerFilter] = useState<"all" | "active_cart" | "repeat" | "guest_cart">("all");
+  const [customerFilter, setCustomerFilter] = useState<"all" | "active_cart" | "repeat" | "wishlist" | "high_value" | "guest_cart">("all");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerProfile | null>(null);
   const [selectedGuestCart, setSelectedGuestCart] = useState<ActiveCartInfo | null>(null);
+  const [customerViewMode, setCustomerViewMode] = useState<"table" | "cards">("table");
+  const [customerSort, setCustomerSort] = useState<"recent" | "ltv_desc" | "ltv_asc" | "orders_desc" | "cart_desc" | "name_asc">("recent");
+  const [customerPage, setCustomerPage] = useState(1);
+  const [customerPageSize, setCustomerPageSize] = useState(25);
+  const [customerTotal, setCustomerTotal] = useState(0);
+  const [customerTotalPages, setCustomerTotalPages] = useState(1);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
+  const [exportingCsv, setExportingCsv] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editStatus, setEditStatus] = useState<OrderStatus>("confirmed");
@@ -174,10 +183,104 @@ export default function StandaloneAdminDashboard() {
       if (custRes.data?.customers) setCustomers(custRes.data.customers);
       if (custRes.data?.guestCarts) setGuestCarts(custRes.data.guestCarts);
       if (custRes.data?.stats) setCustomerStats(custRes.data.stats);
+      if (custRes.data?.total !== undefined) setCustomerTotal(custRes.data.total);
+      if (custRes.data?.totalPages !== undefined) setCustomerTotalPages(custRes.data.totalPages);
     } finally {
       setRefreshing(false);
     }
   }, []);
+
+  const fetchCustomersList = useCallback(async () => {
+    setLoadingCustomers(true);
+    try {
+      const q = encodeURIComponent(customerSearchQuery.trim());
+      const res = await fetch(`/api/customers?page=${customerPage}&limit=${customerPageSize}&q=${q}&filter=${customerFilter}&sort=${customerSort}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        if (json.data.customers) setCustomers(json.data.customers);
+        if (json.data.guestCarts) setGuestCarts(json.data.guestCarts);
+        if (json.data.stats) setCustomerStats(json.data.stats);
+        if (json.data.total !== undefined) setCustomerTotal(json.data.total);
+        if (json.data.totalPages !== undefined) setCustomerTotalPages(json.data.totalPages);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch paginated customers:", e);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  }, [customerPage, customerPageSize, customerSearchQuery, customerFilter, customerSort]);
+
+  useEffect(() => {
+    if (activeTab === "customers") {
+      const timer = setTimeout(() => {
+        fetchCustomersList();
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, fetchCustomersList]);
+
+  const handleExportCustomersCsv = async () => {
+    setExportingCsv(true);
+    try {
+      const q = encodeURIComponent(customerSearchQuery.trim());
+      const res = await fetch(`/api/customers?all=true&q=${q}&filter=${customerFilter}&sort=${customerSort}`);
+      const json = await res.json();
+      const list: CustomerProfile[] = json.data?.customers || customers;
+
+      const headers = [
+        "Customer ID",
+        "Name",
+        "Mobile",
+        "Email",
+        "Total Orders",
+        "Lifetime Value (INR)",
+        "Primary City",
+        "Primary State",
+        "Pincode",
+        "Active Cart Items Count",
+        "Active Cart Value (INR)",
+        "Wishlist Items Count",
+        "Last Order Date",
+      ];
+
+      const rows = list.map((c) => {
+        const addr = c.addresses?.[0];
+        const cartItems = c.activeCart?.items?.length || 0;
+        const cartVal = (c.activeCart?.subtotal ? c.activeCart.subtotal / 100 : 0).toFixed(2);
+        const ltv = ((c.totalSpent || 0) / 100).toFixed(2);
+        const lastOrder = c.lastOrderDate ? new Date(c.lastOrderDate).toISOString().slice(0, 10) : "";
+
+        return [
+          `"${c.id || ""}"`,
+          `"${(c.name || "Customer").replace(/"/g, '""')}"`,
+          `"${c.mobile || ""}"`,
+          `"${(c.email || "").replace(/"/g, '""')}"`,
+          c.totalOrders || 0,
+          ltv,
+          `"${(addr?.city || "").replace(/"/g, '""')}"`,
+          `"${(addr?.state || "").replace(/"/g, '""')}"`,
+          `"${addr?.pincode || ""}"`,
+          cartItems,
+          cartVal,
+          c.wishlist?.length || 0,
+          `"${lastOrder}"`,
+        ].join(",");
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `roparts_customers_export_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      alert("Failed to export customers CSV.");
+    } finally {
+      setExportingCsv(false);
+    }
+  };
 
   useEffect(() => {
     checkSession();
@@ -819,11 +922,19 @@ export default function StandaloneAdminDashboard() {
         finalKeywords.push(newProdKeywordInput.trim());
       }
 
+      const computedSlug = trimmedName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const computedSku = `RP-${Date.now().toString(36).toUpperCase()}`;
+
       const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: trimmedName,
+          slug: computedSlug,
+          sku: computedSku,
           mainCategory: newProdMainCategory,
           categoryId: newProdCategory,
           brand: newProdBrand.trim() || "Drop Purity",
@@ -838,7 +949,7 @@ export default function StandaloneAdminDashboard() {
             brand: newProdBrand.trim() || "Drop Purity",
           },
           seoKeywords: finalKeywords,
-          images: newProdImages.length > 0 ? newProdImages : ["https://placehold.co/600x600/1a365d/ffffff?text=RO+Part"],
+          images: newProdImages.length > 0 ? newProdImages : ["/hero-products.jpg"],
         }),
       });
       const json = await res.json();
@@ -1370,6 +1481,13 @@ export default function StandaloneAdminDashboard() {
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {filteredOrders.map((ord) => {
                 const addr = ord.shippingAddress;
+                const rawAccMob = String(ord.customerMobile || (ord as any).customer?.mobile || "").replace(/\D/g, "");
+                const accountMobile = rawAccMob.length >= 10 ? rawAccMob.slice(-10) : (rawAccMob || addr?.mobile || "");
+                const accountName = ord.customerName || (ord as any).customer?.name || addr?.name || "Customer";
+                const rawRecMob = String(addr?.mobile || "").replace(/\D/g, "");
+                const recipientMobile = rawRecMob.length >= 10 ? rawRecMob.slice(-10) : (rawRecMob || "");
+                const isDifferentRecipient = Boolean(addr?.name && addr.name.trim().toLowerCase() !== accountName.trim().toLowerCase());
+
                 return (
                   <div key={ord.orderNumber} style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" }}>
@@ -1391,11 +1509,35 @@ export default function StandaloneAdminDashboard() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", background: "#0f172a", borderRadius: "12px", padding: "0.875rem" }}>
                       <div>
-                        <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700 }}>👤 CUSTOMER &amp; GPS LOCATION:</div>
-                        <div style={{ fontWeight: 800, color: "#fff" }}>{addr?.name} (📱 +91 {addr?.mobile})</div>
-                        <div style={{ fontSize: "0.75rem", color: "#cbd5e1", marginTop: "0.25rem" }}>
-                          {addr?.line1}, {addr?.city} — {addr?.pincode}
+                        {/* Account Owner */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
+                          <span style={{ fontSize: "0.6875rem", color: "#38bdf8", background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.3)", padding: "0.15rem 0.45rem", borderRadius: "4px", fontWeight: 800 }}>
+                            👤 ACCOUNT
+                          </span>
+                          <span style={{ fontWeight: 800, color: "#fff", fontSize: "0.9375rem" }}>
+                            {accountName} (📱 +91 {accountMobile})
+                          </span>
                         </div>
+
+                        {/* Recipient / Delivery Info */}
+                        {isDifferentRecipient ? (
+                          <div style={{ margin: "0.35rem 0", background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "8px", padding: "0.5rem 0.625rem" }}>
+                            <div style={{ fontSize: "0.6875rem", color: "#fbbf24", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                              <span>📦</span> DELIVER TO (RECIPIENT):
+                            </div>
+                            <div style={{ fontWeight: 800, color: "#fef08a", fontSize: "0.8125rem", marginTop: "0.15rem" }}>
+                              {addr?.name} {recipientMobile ? `(📱 +91 ${recipientMobile})` : ""}
+                            </div>
+                            <div style={{ fontSize: "0.75rem", color: "#cbd5e1", marginTop: "0.25rem" }}>
+                              {addr?.line1}{addr?.line2 ? `, ${addr.line2}` : ""}, {addr?.city} — {addr?.pincode}
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: "0.75rem", color: "#cbd5e1", marginTop: "0.25rem" }}>
+                            📍 {addr?.line1}{addr?.line2 ? `, ${addr.line2}` : ""}, {addr?.city} — {addr?.pincode}
+                          </div>
+                        )}
+
                         {addr?.latitude && addr?.longitude && (
                           <div style={{ marginTop: "0.375rem" }}>
                             <a href={addr.mapUrl || `https://www.google.com/maps?q=${addr.latitude},${addr.longitude}`} target="_blank" rel="noreferrer" style={{ background: "#064e3b", color: "#6ee7b7", padding: "0.2rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 700, textDecoration: "none" }}>
@@ -1413,13 +1555,28 @@ export default function StandaloneAdminDashboard() {
                             <span style={{ fontWeight: 700 }}>{formatPrice(it.lineTotal)}</span>
                           </div>
                         ))}
-                        {addr?.mobile && (
-                          <div style={{ marginTop: "0.5rem" }}>
-                            <a href={`https://wa.me/91${addr.mobile.replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hello ${addr.name}, update on your ROParts.in Order #${ord.orderNumber}: Status is now ${ord.status.toUpperCase()}.`)}`} target="_blank" rel="noreferrer" style={{ background: "#25D366", color: "#fff", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800, textDecoration: "none" }}>
-                              💬 WhatsApp Customer
+                        <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                          {accountMobile && (
+                            <a
+                              href={`https://wa.me/91${accountMobile}?text=${encodeURIComponent(`Hello ${accountName}, update on your ROParts.in Order #${ord.orderNumber}: Status is now ${ord.status.toUpperCase()}.`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ background: "#25D366", color: "#fff", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
+                            >
+                              💬 WhatsApp {isDifferentRecipient ? `Account (${accountName})` : "Customer"}
                             </a>
-                          </div>
-                        )}
+                          )}
+                          {isDifferentRecipient && recipientMobile && recipientMobile !== accountMobile && (
+                            <a
+                              href={`https://wa.me/91${recipientMobile}?text=${encodeURIComponent(`Hello ${addr?.name}, your package for ROParts.in Order #${ord.orderNumber} is now ${ord.status.toUpperCase()}. Delivery to ${addr?.city || "your address"}.`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ background: "#0284c7", color: "#fff", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.6875rem", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
+                            >
+                              💬 WhatsApp Recipient ({addr?.name})
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1778,7 +1935,28 @@ export default function StandaloneAdminDashboard() {
                                   <button onClick={() => setEditingProductId(null)} style={{ background: "#475569", color: "#fff", border: "none", borderRadius: "6px", padding: "0.35rem 0.5rem", cursor: "pointer" }}>✕</button>
                                 </div>
                               ) : (
-                                <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end" }}>
+                                <div style={{ display: "flex", gap: "0.375rem", justifyContent: "flex-end", alignItems: "center" }}>
+                                  <a
+                                    href={`http://localhost:3000/product/${p.slug || p.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      background: "#0284c7",
+                                      color: "#fff",
+                                      border: "none",
+                                      borderRadius: "6px",
+                                      padding: "0.35rem 0.625rem",
+                                      textDecoration: "none",
+                                      fontSize: "0.75rem",
+                                      fontWeight: 700,
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: "0.25rem",
+                                    }}
+                                    title={`Open ${p.name} on live storefront`}
+                                  >
+                                    🌐 View ↗
+                                  </a>
                                   <button onClick={() => { setEditingProductId(p.id); setEditPrice(Math.round(p.sellingPrice / 100)); setEditStock(p.stock); }} style={{ background: "#334155", color: "#38bdf8", border: "none", borderRadius: "6px", padding: "0.35rem 0.625rem", cursor: "pointer", fontWeight: 700 }}>
                                     ✏️ Quick Edit
                                   </button>
@@ -1824,27 +2002,13 @@ export default function StandaloneAdminDashboard() {
 
         {/* Tab 4: Customers & Active Carts */}
         {activeTab === "customers" && (() => {
-          const query = customerSearchQuery.trim().toLowerCase();
-          const filteredCustomers = customers.filter((cust) => {
-            const matchesSearch =
-              !query ||
-              cust.name.toLowerCase().includes(query) ||
-              cust.mobile.includes(query) ||
-              (cust.email && cust.email.toLowerCase().includes(query)) ||
-              cust.addresses.some((a) => (a.city && a.city.toLowerCase().includes(query)) || (a.pincode && a.pincode.includes(query))) ||
-              cust.orders.some((o) => o.orderNumber.toLowerCase().includes(query));
-
-            if (!matchesSearch) return false;
-
-            if (customerFilter === "active_cart") return Boolean(cust.activeCart && cust.activeCart.items.length > 0);
-            if (customerFilter === "repeat") return cust.totalOrders > 1;
-            return true;
-          });
-
-          const totalCustCount = customerStats?.totalCustomers ?? customers.length;
-          const totalRev = customerStats?.totalRevenue ?? customers.reduce((sum, c) => sum + c.totalSpent, 0);
-          const activeCartsTotal = customerStats?.activeCartsCount ?? (customers.filter((c) => c.activeCart && c.activeCart.items.length > 0).length + guestCarts.length);
+          const filteredCustomers = customers;
+          const totalCustCount = customerStats?.totalCustomers ?? customerTotal ?? customers.length;
+          const totalRev = customerStats?.totalRevenue ?? customers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+          const activeCartsTotal = customerStats?.activeCartsCount ?? (customers.filter((c) => c.activeCart && c.activeCart.items?.length > 0).length + guestCarts.length);
           const repeatCustCount = customerStats?.repeatCustomers ?? customers.filter((c) => c.totalOrders > 1).length;
+          const effectiveTotal = customerTotal || customers.length;
+          const effectiveTotalPages = customerTotalPages || Math.ceil(effectiveTotal / customerPageSize) || 1;
 
           return (
             <div>
@@ -1852,8 +2016,8 @@ export default function StandaloneAdminDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
                 <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", padding: "1.25rem" }}>
                   <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Total Customers</div>
-                  <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#fff", marginTop: "0.375rem" }}>{totalCustCount}</div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>Registered Profiles</div>
+                  <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#fff", marginTop: "0.375rem" }}>{totalCustCount.toLocaleString("en-IN")}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>Registered Customer Profiles</div>
                 </div>
                 <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", padding: "1.25rem" }}>
                   <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Customer Lifetime Value</div>
@@ -1863,7 +2027,7 @@ export default function StandaloneAdminDashboard() {
                 <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", padding: "1.25rem" }}>
                   <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Active Shopping Carts</div>
                   <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#f59e0b", marginTop: "0.375rem" }}>{activeCartsTotal}</div>
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>{customers.filter((c) => c.activeCart).length} Identified + {guestCarts.length} Guests</div>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>{customerStats?.activeCartsCount ?? 0} Identified + {guestCarts.length} Guests</div>
                 </div>
                 <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", padding: "1.25rem" }}>
                   <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Repeat Buyers</div>
@@ -1872,46 +2036,162 @@ export default function StandaloneAdminDashboard() {
                 </div>
               </div>
 
-              {/* Search & Filter Controls */}
-              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", marginBottom: "1.5rem", background: "#1e293b", padding: "1rem", borderRadius: "16px", border: "1px solid #334155" }}>
-                <div style={{ flex: "1", minWidth: "260px", position: "relative" }}>
-                  <input
-                    type="text"
-                    value={customerSearchQuery}
-                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
-                    placeholder="Search by Name, Mobile, City, Pincode, or Order #..."
-                    style={{
-                      width: "100%",
-                      padding: "0.625rem 1rem",
-                      borderRadius: "10px",
-                      background: "#0f172a",
-                      border: "1px solid #334155",
-                      color: "#fff",
-                      fontSize: "0.875rem",
-                    }}
-                  />
-                  {customerSearchQuery && (
+              {/* Search, Filter & Controls Console */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem", background: "#1e293b", padding: "1.25rem", borderRadius: "16px", border: "1px solid #334155" }}>
+                {/* Row 1: Search Everything + View Mode + Sorting + CSV Export */}
+                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
+                  {/* Search Everything Bar */}
+                  <div style={{ flex: "1", minWidth: "280px", position: "relative" }}>
+                    <input
+                      type="text"
+                      value={customerSearchQuery}
+                      onChange={(e) => {
+                        setCustomerSearchQuery(e.target.value);
+                        setCustomerPage(1);
+                      }}
+                      placeholder="🔍 Search everything: Name, Mobile, City, Pincode, Order #, or Product..."
+                      style={{
+                        width: "100%",
+                        padding: "0.625rem 1rem 0.625rem 2.25rem",
+                        borderRadius: "10px",
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: "#fff",
+                        fontSize: "0.875rem",
+                      }}
+                    />
+                    <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "0.875rem", opacity: 0.6 }}>
+                      🔎
+                    </span>
+                    {customerSearchQuery && (
+                      <button
+                        onClick={() => {
+                          setCustomerSearchQuery("");
+                          setCustomerPage(1);
+                        }}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.875rem" }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Dual View Mode Toggle */}
+                  <div style={{ display: "inline-flex", background: "#0f172a", borderRadius: "10px", padding: "0.25rem", border: "1px solid #334155" }}>
                     <button
-                      onClick={() => setCustomerSearchQuery("")}
-                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94a3b8", cursor: "pointer" }}
+                      onClick={() => setCustomerViewMode("table")}
+                      style={{
+                        padding: "0.45rem 0.75rem",
+                        borderRadius: "8px",
+                        border: "none",
+                        background: customerViewMode === "table" ? "#38bdf8" : "transparent",
+                        color: customerViewMode === "table" ? "#0f172a" : "#94a3b8",
+                        fontWeight: 700,
+                        fontSize: "0.8125rem",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        transition: "all 0.15s ease",
+                      }}
+                      title="Compact scannable list view"
                     >
-                      ✕
+                      <span>☰</span> Short List Table
                     </button>
-                  )}
+                    <button
+                      onClick={() => setCustomerViewMode("cards")}
+                      style={{
+                        padding: "0.45rem 0.75rem",
+                        borderRadius: "8px",
+                        border: "none",
+                        background: customerViewMode === "cards" ? "#38bdf8" : "transparent",
+                        color: customerViewMode === "cards" ? "#0f172a" : "#94a3b8",
+                        fontWeight: 700,
+                        fontSize: "0.8125rem",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        transition: "all 0.15s ease",
+                      }}
+                      title="Rich card grid view"
+                    >
+                      <span>⊞</span> Visual Cards
+                    </button>
+                  </div>
+
+                  {/* Dynamic Sorting Select */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                    <select
+                      value={customerSort}
+                      onChange={(e) => {
+                        setCustomerSort(e.target.value as any);
+                        setCustomerPage(1);
+                      }}
+                      style={{
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "10px",
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: "#38bdf8",
+                        fontWeight: 700,
+                        fontSize: "0.8125rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <option value="recent">🕒 Sort: Most Recent Activity</option>
+                      <option value="ltv_desc">💰 Sort: Highest LTV (VIPs)</option>
+                      <option value="ltv_asc">💵 Sort: Lowest LTV</option>
+                      <option value="orders_desc">📦 Sort: Most Orders</option>
+                      <option value="cart_desc">🛒 Sort: Highest Cart Value</option>
+                      <option value="name_asc">🔤 Sort: Name (A–Z)</option>
+                    </select>
+                  </div>
+
+                  {/* CSV Export Button */}
+                  <button
+                    onClick={handleExportCustomersCsv}
+                    disabled={exportingCsv}
+                    style={{
+                      padding: "0.55rem 0.875rem",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: "#059669",
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: "0.8125rem",
+                      cursor: exportingCsv ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.375rem",
+                      transition: "opacity 0.15s ease",
+                      opacity: exportingCsv ? 0.7 : 1,
+                    }}
+                    title="Export customer list to Excel / CSV"
+                  >
+                    <span>{exportingCsv ? "⏳" : "📥"}</span>
+                    <span>{exportingCsv ? "Exporting..." : "Export CSV"}</span>
+                  </button>
                 </div>
 
-                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {/* Row 2: Filter Pills */}
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center", borderTop: "1px solid rgba(51, 65, 85, 0.6)", paddingTop: "0.875rem" }}>
                   {[
-                    { id: "all", label: `All Profiles (${customers.length})` },
-                    { id: "active_cart", label: `🛒 In Cart (${customers.filter((c) => c.activeCart).length})` },
-                    { id: "repeat", label: `⭐ Repeat (${customers.filter((c) => c.totalOrders > 1).length})` },
+                    { id: "all", label: `All Profiles (${customerStats?.totalCustomers ?? effectiveTotal})` },
+                    { id: "active_cart", label: `🛒 In Cart (${customerStats?.activeCartsCount ?? 0})` },
+                    { id: "wishlist", label: `❤️ Wishlist (${customerStats?.wishlistedCount ?? 0})` },
+                    { id: "repeat", label: `⭐ Repeat (${customerStats?.repeatCustomers ?? 0})` },
+                    { id: "high_value", label: `👑 VIP >₹5k (${customerStats?.highValueCount ?? 0})` },
                     { id: "guest_cart", label: `⏳ Guest Carts (${guestCarts.length})` },
                   ].map((f) => (
                     <button
                       key={f.id}
-                      onClick={() => setCustomerFilter(f.id as typeof customerFilter)}
+                      onClick={() => {
+                        setCustomerFilter(f.id as typeof customerFilter);
+                        setCustomerPage(1);
+                      }}
                       style={{
-                        padding: "0.5rem 0.875rem",
+                        padding: "0.45rem 0.85rem",
                         borderRadius: "8px",
                         border: "none",
                         fontSize: "0.8125rem",
@@ -1925,6 +2205,11 @@ export default function StandaloneAdminDashboard() {
                       {f.label}
                     </button>
                   ))}
+                  {loadingCustomers && (
+                    <span style={{ fontSize: "0.75rem", color: "#38bdf8", marginLeft: "auto", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                      <span>⏳</span> Loading...
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -2019,8 +2304,260 @@ export default function StandaloneAdminDashboard() {
                     </div>
                   )}
                 </div>
+              ) : customerViewMode === "table" ? (
+                /* High-Density Short List Table View */
+                <div style={{ background: "#1e293b", border: "1px solid #334155", borderRadius: "16px", overflow: "hidden" }}>
+                  {filteredCustomers.length === 0 ? (
+                    <div style={{ padding: "3rem", textAlign: "center", color: "#94a3b8" }}>
+                      No customer profiles found matching &quot;{customerSearchQuery}&quot;.
+                    </div>
+                  ) : (
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.8125rem" }}>
+                        <thead>
+                          <tr style={{ background: "#0f172a", borderBottom: "1px solid #334155", color: "#94a3b8", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            <th style={{ padding: "0.875rem 1rem", width: "40px" }}>
+                              <input
+                                type="checkbox"
+                                checked={selectedCustomerIds.size > 0 && selectedCustomerIds.size === filteredCustomers.length}
+                                onChange={(e) => {
+                                  if (e.target.checked) setSelectedCustomerIds(new Set(filteredCustomers.map((c) => c.id)));
+                                  else setSelectedCustomerIds(new Set());
+                                }}
+                                style={{ cursor: "pointer" }}
+                              />
+                            </th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Customer</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Location</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Orders</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Lifetime Value</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Active Cart</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Wishlist</th>
+                            <th style={{ padding: "0.875rem 1rem" }}>Last Active</th>
+                            <th style={{ padding: "0.875rem 1rem", textAlign: "right" }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredCustomers.map((cust) => {
+                            const primaryAddr = cust.addresses[0];
+                            const hasActiveCart = Boolean(cust.activeCart && cust.activeCart.items?.length > 0);
+                            const initials = (cust.name || "Customer")
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2);
+                            const isSelected = selectedCustomerIds.has(cust.id);
+
+                            return (
+                              <tr
+                                key={cust.id}
+                                style={{
+                                  borderBottom: "1px solid #334155",
+                                  background: isSelected ? "rgba(56, 189, 248, 0.08)" : hasActiveCart ? "rgba(245, 158, 11, 0.03)" : "transparent",
+                                  transition: "background-color 0.1s ease",
+                                }}
+                              >
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      const next = new Set(selectedCustomerIds);
+                                      if (e.target.checked) next.add(cust.id);
+                                      else next.delete(cust.id);
+                                      setSelectedCustomerIds(next);
+                                    }}
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                    <div
+                                      style={{
+                                        width: "36px",
+                                        height: "36px",
+                                        borderRadius: "10px",
+                                        background: hasActiveCart ? "#f59e0b" : cust.totalOrders > 1 ? "#3b82f6" : "#475569",
+                                        color: "#fff",
+                                        fontWeight: 800,
+                                        fontSize: "0.875rem",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        flexShrink: 0,
+                                      }}
+                                    >
+                                      {initials}
+                                    </div>
+                                    <div style={{ minWidth: 0 }}>
+                                      <div style={{ fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                                        <span>{cust.name}</span>
+                                        {cust.totalOrders > 1 && (
+                                          <span style={{ background: "#064e3b", color: "#6ee7b7", padding: "0.1rem 0.35rem", borderRadius: "4px", fontSize: "0.625rem", fontWeight: 700 }}>
+                                            ⭐ Repeat
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.2rem", flexWrap: "wrap" }}>
+                                        <a
+                                          href={`https://wa.me/91${cust.mobile}?text=${encodeURIComponent(`Hello ${cust.name}, greetings from ROParts!`)}`}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          style={{
+                                            color: "#22c55e",
+                                            fontWeight: 700,
+                                            fontSize: "0.75rem",
+                                            textDecoration: "none",
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "0.25rem",
+                                            background: "rgba(34, 197, 94, 0.1)",
+                                            padding: "0.15rem 0.35rem",
+                                            borderRadius: "4px",
+                                          }}
+                                        >
+                                          💬 +91 {cust.mobile}
+                                        </a>
+                                        {cust.email && (
+                                          <span style={{ fontSize: "0.6875rem", color: "#94a3b8" }}>{cust.email}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem", color: "#cbd5e1" }}>
+                                  {primaryAddr ? (
+                                    <div>
+                                      <div style={{ fontWeight: 600, color: "#fff" }}>
+                                        {primaryAddr.city || "Direct"}{primaryAddr.state ? `, ${primaryAddr.state}` : ""}
+                                      </div>
+                                      {primaryAddr.pincode && (
+                                        <span style={{ background: "rgba(56, 189, 248, 0.12)", color: "#38bdf8", padding: "0.1rem 0.35rem", borderRadius: "4px", fontSize: "0.6875rem", fontWeight: 700, display: "inline-block", marginTop: "0.2rem" }}>
+                                          PIN: {primaryAddr.pincode}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span style={{ color: "#64748b" }}>—</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  <div style={{ fontWeight: 800, color: "#fff" }}>
+                                    {cust.totalOrders} {cust.totalOrders === 1 ? "order" : "orders"}
+                                  </div>
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  <div style={{ fontWeight: 800, color: "#38bdf8", fontSize: "0.9375rem" }}>
+                                    {formatPrice(cust.totalSpent)}
+                                  </div>
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  {hasActiveCart && cust.activeCart ? (
+                                    <span style={{ background: "rgba(245, 158, 11, 0.15)", border: "1px solid rgba(245, 158, 11, 0.4)", color: "#fbbf24", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 800, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                                      🛒 {cust.activeCart.itemCount} items ({formatPrice(cust.activeCart.subtotal)})
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "#64748b" }}>—</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem" }}>
+                                  {cust.wishlist && cust.wishlist.length > 0 ? (
+                                    <span style={{ background: "rgba(236, 72, 153, 0.15)", color: "#f472b6", padding: "0.25rem 0.5rem", borderRadius: "6px", fontSize: "0.75rem", fontWeight: 800, display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                                      ❤️ {cust.wishlist.length}
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "#64748b" }}>—</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem", color: "#94a3b8", fontSize: "0.75rem" }}>
+                                  {cust.lastOrderDate ? new Date(cust.lastOrderDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Registered"}
+                                </td>
+                                <td style={{ padding: "0.875rem 1rem", textAlign: "right" }}>
+                                  <div style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+                                    <button
+                                      onClick={() => setSelectedCustomer(cust)}
+                                      style={{
+                                        background: "#0284c7",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        padding: "0.35rem 0.6rem",
+                                        fontSize: "0.75rem",
+                                        fontWeight: 700,
+                                        cursor: "pointer",
+                                      }}
+                                      title="View full customer profile and orders"
+                                    >
+                                      Inspect ↗
+                                    </button>
+                                    {hasActiveCart && cust.mobile && !cust.mobile.startsWith("Guest") && (
+                                      <a
+                                        href={`https://wa.me/91${cust.mobile}?text=${encodeURIComponent(
+                                          `Hello ${cust.name}, we noticed you have ${cust.activeCart?.itemCount} item(s) in your ROParts cart worth ${formatPrice(cust.activeCart?.subtotal || 0)}. Need any assistance? https://roparts.in/cart`
+                                        )}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{
+                                          background: "#25D366",
+                                          color: "#fff",
+                                          padding: "0.35rem 0.5rem",
+                                          borderRadius: "6px",
+                                          fontSize: "0.75rem",
+                                          fontWeight: 700,
+                                          textDecoration: "none",
+                                          display: "inline-flex",
+                                          alignItems: "center",
+                                        }}
+                                        title="Send WhatsApp cart recovery link"
+                                      >
+                                        💬
+                                      </a>
+                                    )}
+                                    <button
+                                      onClick={async () => {
+                                        if (!confirm(`Are you sure you want to delete customer "${cust.name}" (+91 ${cust.mobile})?`)) return;
+                                        try {
+                                          const res = await fetch(`/api/customers?id=${encodeURIComponent(cust.id)}&mobile=${encodeURIComponent(cust.mobile)}`, {
+                                            method: "DELETE",
+                                          });
+                                          const data = await res.json();
+                                          if (data.success) {
+                                            setCustomers((prev) => prev.filter((c) => c.id !== cust.id && c.mobile !== cust.mobile));
+                                            if (selectedCustomer?.id === cust.id) setSelectedCustomer(null);
+                                          } else {
+                                            alert(data.error || "Failed to delete customer");
+                                          }
+                                        } catch {
+                                          alert("Network error while deleting customer");
+                                        }
+                                      }}
+                                      style={{
+                                        background: "rgba(239, 68, 68, 0.15)",
+                                        color: "#f87171",
+                                        border: "1px solid rgba(239, 68, 68, 0.3)",
+                                        borderRadius: "6px",
+                                        padding: "0.35rem 0.5rem",
+                                        fontSize: "0.75rem",
+                                        fontWeight: 700,
+                                        cursor: "pointer",
+                                      }}
+                                      title="Delete customer account"
+                                    >
+                                      🗑️
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               ) : (
-                /* Customer Profiles Grid */
+                /* Visual Cards Grid View */
                 <div>
                   {filteredCustomers.length === 0 ? (
                     <div style={{ padding: "3rem", textAlign: "center", background: "#1e293b", borderRadius: "16px", border: "1px solid #334155", color: "#94a3b8" }}>
@@ -2030,7 +2567,7 @@ export default function StandaloneAdminDashboard() {
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "1rem" }}>
                       {filteredCustomers.map((cust) => {
                         const primaryAddr = cust.addresses[0];
-                        const hasActiveCart = Boolean(cust.activeCart && cust.activeCart.items.length > 0);
+                        const hasActiveCart = Boolean(cust.activeCart && cust.activeCart.items?.length > 0);
                         const initials = (cust.name || "Customer")
                           .split(" ")
                           .map((n) => n[0])
@@ -2086,6 +2623,11 @@ export default function StandaloneAdminDashboard() {
                                         🛒 In Cart ({cust.activeCart!.itemCount})
                                       </span>
                                     )}
+                                    {cust.wishlist && cust.wishlist.length > 0 && (
+                                      <span style={{ background: "#831843", color: "#fbcfe8", padding: "0.15rem 0.4rem", borderRadius: "4px", fontSize: "0.6875rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                        ❤️ Wishlisted ({cust.wishlist.length})
+                                      </span>
+                                    )}
                                   </div>
 
                                   <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.25rem", flexWrap: "wrap" }}>
@@ -2131,26 +2673,56 @@ export default function StandaloneAdminDashboard() {
                                 </div>
                               </div>
 
-                              {/* Active Cart Snapshot (if customer has active cart items right now) */}
+                              {/* Active Cart Snapshot */}
                               {hasActiveCart && cust.activeCart && (
-                                <div style={{ background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: "10px", padding: "0.75rem", marginBottom: "0.75rem" }}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.375rem" }}>
-                                    <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#fbbf24" }}>🛒 CURRENT ACTIVE CART</span>
-                                    <span style={{ fontSize: "0.8125rem", fontWeight: 800, color: "#fbbf24" }}>{formatPrice(cust.activeCart.subtotal)}</span>
+                                <div style={{ background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.35)", borderRadius: "12px", padding: "0.875rem", marginBottom: "0.75rem" }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
+                                    <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#fbbf24", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                                      🛒 ACTIVE CART ITEMS ({cust.activeCart.items.length})
+                                    </span>
+                                    <span style={{ fontSize: "0.875rem", fontWeight: 800, color: "#fbbf24" }}>
+                                      {formatPrice(cust.activeCart.subtotal)}
+                                    </span>
                                   </div>
-                                  <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", paddingBottom: "0.25rem" }}>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                                     {cust.activeCart.items.map((item) => (
-                                      <div key={item.productId} style={{ display: "flex", alignItems: "center", gap: "0.375rem", background: "#0f172a", padding: "0.375rem 0.5rem", borderRadius: "6px", flexShrink: 0 }}>
-                                        {item.image && (
+                                      <div key={item.productId} style={{ display: "flex", alignItems: "center", gap: "0.625rem", background: "#0f172a", padding: "0.5rem 0.625rem", borderRadius: "8px", border: "1px solid #334155" }}>
+                                        {item.image ? (
                                           // eslint-disable-next-line @next/next/no-img-element
-                                          <img src={item.image} alt={item.name} style={{ width: "24px", height: "24px", borderRadius: "4px", objectFit: "cover" }} />
+                                          <img src={item.image} alt={item.name} style={{ width: "32px", height: "32px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} />
+                                        ) : (
+                                          <div style={{ width: "32px", height: "32px", borderRadius: "6px", background: "#334155", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", flexShrink: 0 }}>
+                                            📦
+                                          </div>
                                         )}
-                                        <span style={{ fontSize: "0.6875rem", color: "#fff", fontWeight: 700, maxWidth: "120px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                          {item.name}
-                                        </span>
-                                        <span style={{ fontSize: "0.6875rem", color: "#f59e0b", fontWeight: 800 }}>×{item.quantity}</span>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                          <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                            {item.name}
+                                          </div>
+                                          <div style={{ fontSize: "0.6875rem", color: "#94a3b8", marginTop: "0.1rem" }}>
+                                            Qty: <strong style={{ color: "#f59e0b" }}>{item.quantity}</strong> × {formatPrice(item.sellingPrice)}
+                                          </div>
+                                        </div>
+                                        <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#38bdf8", textAlign: "right" }}>
+                                          {formatPrice(item.lineTotal)}
+                                        </div>
                                       </div>
                                     ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Wishlist Snapshot */}
+                              {cust.wishlist && cust.wishlist.length > 0 && (
+                                <div style={{ background: "rgba(236, 72, 153, 0.08)", border: "1px solid rgba(236, 72, 153, 0.35)", borderRadius: "12px", padding: "0.75rem 0.875rem", marginBottom: "0.75rem" }}>
+                                  <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#f472b6", marginBottom: "0.35rem", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                                    ❤️ WISHLIST ITEMS ({cust.wishlist.length})
+                                  </div>
+                                  <div style={{ fontSize: "0.75rem", color: "#e2e8f0", lineHeight: 1.4 }}>
+                                    {cust.wishlist.map((pid) => {
+                                      const prod = products.find((p) => p.id === pid);
+                                      return prod ? prod.name : pid;
+                                    }).join(" • ")}
                                   </div>
                                 </div>
                               )}
@@ -2159,14 +2731,19 @@ export default function StandaloneAdminDashboard() {
                               {primaryAddr && (
                                 <div style={{ fontSize: "0.75rem", color: "#cbd5e1", background: "#0f172a", padding: "0.625rem", borderRadius: "8px", border: "1px solid #334155" }}>
                                   <div style={{ fontWeight: 700, color: "#94a3b8", marginBottom: "0.15rem", display: "flex", justifyContent: "space-between" }}>
-                                    <span>📍 Delivery Address</span>
+                                    <span>📍 Delivery Address {primaryAddr.name && primaryAddr.name !== cust.name ? `(${primaryAddr.name})` : ""}</span>
                                     {primaryAddr.pincode && <span style={{ color: "#38bdf8" }}>PIN: {primaryAddr.pincode}</span>}
                                   </div>
                                   <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                    {primaryAddr.line1} {primaryAddr.line2 ? `, ${primaryAddr.line2}` : ""}, {primaryAddr.city}
+                                    {primaryAddr.line1}{primaryAddr.city ? `, ${primaryAddr.city}` : ""}{primaryAddr.state ? `, ${primaryAddr.state}` : ""}
                                   </div>
+                                  {cust.addresses.length > 1 && (
+                                    <div style={{ marginTop: "0.35rem", fontSize: "0.6875rem", color: "#38bdf8", fontWeight: 700 }}>
+                                      📖 +{cust.addresses.length - 1} more address in account ({cust.addresses.slice(1).map(a => a.name || "Recipient").join(", ")})
+                                    </div>
+                                  )}
                                   {primaryAddr.latitude && primaryAddr.longitude && (
-                                    <div style={{ marginTop: "0.375rem" }}>
+                                    <div style={{ marginTop: "0.35rem" }}>
                                       <a
                                         href={primaryAddr.mapUrl || `https://www.google.com/maps?q=${primaryAddr.latitude},${primaryAddr.longitude}`}
                                         target="_blank"
@@ -2181,12 +2758,13 @@ export default function StandaloneAdminDashboard() {
                               )}
                             </div>
 
-                            {/* Card Footer: Action Button */}
-                            <div style={{ marginTop: "0.875rem", display: "flex", gap: "0.5rem" }}>
+                            {/* Card Footer: Action Buttons */}
+                            <div style={{ marginTop: "0.875rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                               <button
                                 onClick={() => setSelectedCustomer(cust)}
                                 style={{
                                   flex: 1,
+                                  minWidth: "160px",
                                   background: "#3b82f6",
                                   color: "#fff",
                                   border: "none",
@@ -2201,14 +2779,167 @@ export default function StandaloneAdminDashboard() {
                                   gap: "0.375rem",
                                 }}
                               >
-                                View Customer Profile &amp; Orders ↗
+                                View Profile &amp; Orders ↗
                               </button>
+                              <button
+                                onClick={async () => {
+                                  if (!confirm(`Are you sure you want to delete customer "${cust.name}" (+91 ${cust.mobile})? They will be permanently removed and logged out immediately.`)) return;
+                                  try {
+                                    const res = await fetch(`/api/customers?id=${encodeURIComponent(cust.id)}&mobile=${encodeURIComponent(cust.mobile)}`, {
+                                      method: "DELETE",
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                      setCustomers((prev) => prev.filter((c) => c.id !== cust.id && c.mobile !== cust.mobile));
+                                      if (selectedCustomer?.id === cust.id) setSelectedCustomer(null);
+                                    } else {
+                                      alert(data.error || "Failed to delete customer");
+                                    }
+                                  } catch {
+                                    alert("Network error while deleting customer");
+                                  }
+                                }}
+                                style={{
+                                  background: "#ef4444",
+                                  color: "#fff",
+                                  border: "none",
+                                  borderRadius: "8px",
+                                  padding: "0.5rem 0.65rem",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                }}
+                                title="Delete customer account"
+                              >
+                                🗑️ Delete
+                              </button>
+                              {hasActiveCart && cust.mobile && !cust.mobile.startsWith("Guest") && (
+                                <a
+                                  href={`https://wa.me/91${cust.mobile}?text=${encodeURIComponent(
+                                    `Hello ${cust.name}, we noticed you have ${cust.activeCart?.itemCount} item(s) in your ROParts cart worth ${formatPrice(cust.activeCart?.subtotal || 0)}. Need any assistance? https://roparts.in/cart`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{
+                                    background: "#25D366",
+                                    color: "#fff",
+                                    padding: "0.5rem 0.75rem",
+                                    borderRadius: "8px",
+                                    fontSize: "0.75rem",
+                                    fontWeight: 700,
+                                    textDecoration: "none",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "0.25rem",
+                                  }}
+                                >
+                                  💬 WhatsApp Cart
+                                </a>
+                              )}
                             </div>
                           </div>
                         );
                       })}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* High-Scale Pagination & Range Control Bar */}
+              {customerFilter !== "guest_cart" && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem", padding: "0.875rem 1.25rem", background: "#1e293b", border: "1px solid #334155", borderRadius: "14px", flexWrap: "wrap", gap: "0.75rem" }}>
+                  <div style={{ fontSize: "0.8125rem", color: "#94a3b8" }}>
+                    Showing <strong style={{ color: "#fff" }}>{filteredCustomers.length > 0 ? (customerPage - 1) * customerPageSize + 1 : 0}</strong> – <strong style={{ color: "#fff" }}>{Math.min(customerPage * customerPageSize, effectiveTotal)}</strong> of <strong style={{ color: "#38bdf8" }}>{effectiveTotal.toLocaleString("en-IN")}</strong> customer profiles
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginRight: "0.5rem", fontSize: "0.75rem", color: "#94a3b8" }}>
+                      <span>Per page:</span>
+                      <select
+                        value={customerPageSize}
+                        onChange={(e) => {
+                          setCustomerPageSize(Number(e.target.value));
+                          setCustomerPage(1);
+                        }}
+                        style={{ background: "#0f172a", border: "1px solid #334155", color: "#fff", padding: "0.3rem 0.5rem", borderRadius: "6px", fontSize: "0.75rem", cursor: "pointer" }}
+                      >
+                        <option value={15}>15</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => setCustomerPage(1)}
+                      disabled={customerPage <= 1}
+                      style={{
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: customerPage <= 1 ? "#475569" : "#cbd5e1",
+                        padding: "0.35rem 0.65rem",
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: customerPage <= 1 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      « First
+                    </button>
+                    <button
+                      onClick={() => setCustomerPage((p) => Math.max(1, p - 1))}
+                      disabled={customerPage <= 1}
+                      style={{
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: customerPage <= 1 ? "#475569" : "#cbd5e1",
+                        padding: "0.35rem 0.65rem",
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: customerPage <= 1 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      ‹ Prev
+                    </button>
+
+                    <span style={{ fontSize: "0.8125rem", color: "#cbd5e1", padding: "0 0.5rem", fontWeight: 600 }}>
+                      Page <strong style={{ color: "#38bdf8" }}>{customerPage}</strong> of <strong style={{ color: "#fff" }}>{effectiveTotalPages}</strong>
+                    </span>
+
+                    <button
+                      onClick={() => setCustomerPage((p) => Math.min(effectiveTotalPages, p + 1))}
+                      disabled={customerPage >= effectiveTotalPages}
+                      style={{
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: customerPage >= effectiveTotalPages ? "#475569" : "#cbd5e1",
+                        padding: "0.35rem 0.65rem",
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: customerPage >= effectiveTotalPages ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Next ›
+                    </button>
+                    <button
+                      onClick={() => setCustomerPage(effectiveTotalPages)}
+                      disabled={customerPage >= effectiveTotalPages}
+                      style={{
+                        background: "#0f172a",
+                        border: "1px solid #334155",
+                        color: customerPage >= effectiveTotalPages ? "#475569" : "#cbd5e1",
+                        padding: "0.35rem 0.65rem",
+                        borderRadius: "6px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: customerPage >= effectiveTotalPages ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      Last »
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -2614,6 +3345,32 @@ export default function StandaloneAdminDashboard() {
               </div>
             )}
 
+            {(() => {
+              const selAddr = selectedOrder.shippingAddress;
+              const rawAccMob = String(selectedOrder.customerMobile || (selectedOrder as any).customer?.mobile || "").replace(/\D/g, "");
+              const accMob = rawAccMob.length >= 10 ? rawAccMob.slice(-10) : (rawAccMob || selAddr?.mobile || "");
+              const accName = selectedOrder.customerName || (selectedOrder as any).customer?.name || selAddr?.name || "Customer";
+              const isDiff = Boolean(selAddr?.name && selAddr.name.trim().toLowerCase() !== accName.trim().toLowerCase());
+              return (
+                <div style={{ background: "#0f172a", border: "1px solid #334155", borderRadius: "10px", padding: "0.75rem", marginBottom: "1rem", fontSize: "0.75rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: isDiff ? "0.35rem" : "0" }}>
+                    <span style={{ color: "#94a3b8", fontWeight: 700 }}>👤 Account Owner:</span>
+                    <span style={{ color: "#38bdf8", fontWeight: 800 }}>{accName} (📱 +91 {accMob})</span>
+                  </div>
+                  {isDiff && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #1e293b", paddingTop: "0.35rem", marginBottom: "0.35rem" }}>
+                      <span style={{ color: "#fbbf24", fontWeight: 700 }}>📦 Deliver To (Recipient):</span>
+                      <span style={{ color: "#fef08a", fontWeight: 800 }}>{selAddr?.name} (📱 +91 {selAddr?.mobile})</span>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #1e293b", paddingTop: "0.35rem", color: "#94a3b8" }}>
+                    <span>📍 Destination:</span>
+                    <span style={{ color: "#cbd5e1" }}>{selAddr?.city} — {selAddr?.pincode}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
             <form onSubmit={handleSaveOrderUpdate}>
               <div style={{ marginBottom: "1rem" }}>
                 <label style={{ display: "block", fontSize: "0.8125rem", fontWeight: 700, color: "#cbd5e1", marginBottom: "0.375rem" }}>Status *</label>
@@ -2726,6 +3483,15 @@ export default function StandaloneAdminDashboard() {
                       fontSize: "0.875rem",
                     }}
                   />
+                  {newProdName.trim() && (
+                    <div style={{ marginTop: "0.35rem", fontSize: "0.75rem", color: "#38bdf8", display: "flex", alignItems: "center", gap: "0.35rem", background: "rgba(56, 189, 248, 0.08)", padding: "0.3rem 0.5rem", borderRadius: "6px", border: "1px solid rgba(56, 189, 248, 0.2)" }}>
+                      <span>🔗</span>
+                      <span>Live Endpoint:</span>
+                      <code style={{ color: "#a5f3fc", fontWeight: 600 }}>
+                        /product/{newProdName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}
+                      </code>
+                    </div>
+                  )}
                   {newProdName.trim() && products.some((p) => p.name.trim().toLowerCase() === newProdName.trim().toLowerCase()) && (
                     <div style={{ color: "#f87171", fontSize: "0.75rem", fontWeight: 700, marginTop: "0.35rem" }}>
                       ⚠️ A product with this name already exists in your catalog!
@@ -3585,6 +4351,12 @@ export default function StandaloneAdminDashboard() {
                     {selectedCustomer.activeCart ? `🛒 ${selectedCustomer.activeCart.itemCount} items (${formatPrice(selectedCustomer.activeCart.subtotal)})` : "Empty Cart"}
                   </div>
                 </div>
+                <div style={{ background: "#0f172a", padding: "0.75rem 1rem", borderRadius: "12px", border: "1px solid #334155" }}>
+                  <div style={{ fontSize: "0.6875rem", color: "#94a3b8", fontWeight: 700 }}>WISHLIST STATUS</div>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 800, color: selectedCustomer.wishlist && selectedCustomer.wishlist.length > 0 ? "#f472b6" : "#64748b", marginTop: "0.375rem" }}>
+                    {selectedCustomer.wishlist && selectedCustomer.wishlist.length > 0 ? `❤️ ${selectedCustomer.wishlist.length} item(s)` : "Empty Wishlist"}
+                  </div>
+                </div>
               </div>
 
               {/* SECTION: Active Cart Details */}
@@ -3657,6 +4429,89 @@ export default function StandaloneAdminDashboard() {
                 )}
               </div>
 
+              {/* SECTION: Customer Wishlist Details */}
+              <div style={{ background: "#0f172a", border: selectedCustomer.wishlist && selectedCustomer.wishlist.length > 0 ? "1px solid rgba(236, 72, 153, 0.4)" : "1px solid #334155", borderRadius: "16px", padding: "1.25rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontSize: "1.125rem" }}>❤️</span>
+                    <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#fff" }}>
+                      Customer Wishlist {selectedCustomer.wishlist ? `(${selectedCustomer.wishlist.length} items)` : "(0 items)"}
+                    </h4>
+                  </div>
+                  {selectedCustomer.wishlist && selectedCustomer.wishlist.length > 0 && selectedCustomer.mobile && !selectedCustomer.mobile.startsWith("Guest") && (
+                    <a
+                      href={`https://wa.me/91${selectedCustomer.mobile}?text=${encodeURIComponent(
+                        `Hello ${selectedCustomer.name}, we noticed you saved ${selectedCustomer.wishlist.length} item(s) to your ROParts wishlist! Are you looking for any specific discounts or fast dispatch? https://roparts.in/wishlist`
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        background: "#831843",
+                        color: "#fbcfe8",
+                        padding: "0.4rem 0.75rem",
+                        borderRadius: "8px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.375rem",
+                      }}
+                    >
+                      <span>💬</span> WhatsApp Special Offer
+                    </a>
+                  )}
+                </div>
+
+                {!selectedCustomer.wishlist || selectedCustomer.wishlist.length === 0 ? (
+                  <div style={{ padding: "1.5rem", textAlign: "center", color: "#64748b", fontSize: "0.875rem" }}>
+                    Customer currently has no items saved in their wishlist.
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0.75rem" }}>
+                    {selectedCustomer.wishlist.map((pid) => {
+                      const prod = products.find((p) => p.id === pid);
+                      return (
+                        <div
+                          key={pid}
+                          style={{
+                            background: "#1e293b",
+                            border: "1px solid #334155",
+                            borderRadius: "12px",
+                            padding: "0.75rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.75rem",
+                          }}
+                        >
+                          {prod?.images?.[0] ? (
+                            <img
+                              src={prod.images[0]}
+                              alt={prod.name}
+                              style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "8px", border: "1px solid #475569" }}
+                            />
+                          ) : (
+                            <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: "#334155", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem" }}>
+                              🔧
+                            </div>
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.8125rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {prod ? prod.name : pid}
+                            </div>
+                            {prod && (
+                              <div style={{ fontSize: "0.75rem", color: "#38bdf8", fontWeight: 800, marginTop: "0.15rem" }}>
+                                {formatPrice(prod.sellingPrice)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* SECTION: Complete Past Orders */}
               <div>
                 <h4 style={{ margin: "0 0 1rem", fontSize: "1rem", fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -3696,6 +4551,31 @@ export default function StandaloneAdminDashboard() {
                             </span>
                           </div>
                         </div>
+
+                        {/* If order recipient differs from customer account owner */}
+                        {(() => {
+                          const recName = ord.recipientName || ord.shippingAddress?.name;
+                          const recMob = ord.recipientMobile || ord.shippingAddress?.mobile;
+                          const isDiff = Boolean(recName && recName.trim().toLowerCase() !== selectedCustomer.name.trim().toLowerCase());
+                          if (!isDiff) return null;
+                          return (
+                            <div style={{ margin: "0.25rem 0 0.625rem", background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.25)", borderRadius: "8px", padding: "0.35rem 0.6rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+                              <div style={{ fontSize: "0.75rem", color: "#fbbf24", fontWeight: 700 }}>
+                                📦 Delivered to recipient address: <strong style={{ color: "#fef08a" }}>{recName}</strong> {recMob ? `(📱 +91 ${recMob})` : ""}
+                              </div>
+                              {recMob && (
+                                <a
+                                  href={`https://wa.me/91${String(recMob).replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hello ${recName}, update on package for ROParts.in Order #${ord.orderNumber}: Status is ${ord.status.toUpperCase()}.`)}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{ background: "#25D366", color: "#fff", padding: "0.15rem 0.4rem", borderRadius: "4px", fontSize: "0.6875rem", fontWeight: 700, textDecoration: "none" }}
+                                >
+                                  💬 WhatsApp Recipient
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Order Items */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

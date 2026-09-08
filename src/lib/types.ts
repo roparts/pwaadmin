@@ -160,6 +160,8 @@ export interface Order {
   total: number;
   status: OrderStatus;
   shippingAddress: Address;
+  recipientName?: string;
+  recipientMobile?: string;
   billingAddress?: Address;
   paymentId?: string;
   paymentMethod?: string;
@@ -213,6 +215,7 @@ export interface CustomerProfile {
   orders: Order[];
   sessions?: string[];
   activeCart?: ActiveCartInfo | null;
+  wishlist?: string[];
 }
 
 export interface CustomerStats {
@@ -220,4 +223,6 @@ export interface CustomerStats {
   totalRevenue: number;
   activeCartsCount: number;
   repeatCustomers: number;
+  wishlistedCount?: number;
+  highValueCount?: number;
 }

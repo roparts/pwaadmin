@@ -19,7 +19,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "rp_prod_secret_key_tamper_
 const ADMIN_SERVICE_SECRET = process.env.ADMIN_SERVICE_SECRET || "rp_service_sec_8f934ha981bdf934810293847102938471";
 
 export async function proxyToBackend(endpoint: string, options: RequestInit = {}) {
-  const url = `${MAIN_BACKEND_URL}${endpoint.startsWith("/") ? endpoint : "/" + endpoint}`;
+  const normEndpoint = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
   const timestamp = Date.now().toString();
   const method = (options.method || "GET").toUpperCase();
   const bodyStr = typeof options.body === "string" ? options.body : "";
@@ -27,16 +27,31 @@ export async function proxyToBackend(endpoint: string, options: RequestInit = {}
   const signPayload = `${method}:${endpoint}:${timestamp}:${bodyHash}`;
   const signature = crypto.createHmac("sha256", ADMIN_SERVICE_SECRET).update(signPayload).digest("hex");
 
+  const headers = {
+    "Content-Type": "application/json",
+    "x-internal-admin-secret": SESSION_SECRET,
+    "x-roparts-signature": signature,
+    "x-roparts-timestamp": timestamp,
+    ...(options.headers || {}),
+  };
+
+  // 1. Try local storefront API first if running locally
+  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    try {
+      const localRes = await fetch(`http://localhost:3000/api/v1${normEndpoint}`, {
+        ...options,
+        headers,
+      });
+      if (localRes.ok) return localRes;
+    } catch {}
+  }
+
+  // 2. Main backend URL
+  const url = `${MAIN_BACKEND_URL}${normEndpoint}`;
   try {
     const res = await fetch(url, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        "x-internal-admin-secret": SESSION_SECRET,
-        "x-roparts-signature": signature,
-        "x-roparts-timestamp": timestamp,
-        ...(options.headers || {}),
-      },
+      headers,
     });
     return res;
   } catch (err) {
