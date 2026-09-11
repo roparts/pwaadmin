@@ -120,3 +120,28 @@ export function loadOrdersStore(): Order[] {
 export function saveOrdersStore(orders: Order[]) {
   saveDbStore({ orders });
 }
+
+export function adjustStockForOrderInDb(items: { productId: string; quantity: number }[], mode: "deduct" | "restore") {
+  const store = loadDbStore();
+  const products = [...store.products];
+  let changed = false;
+
+  for (const item of items) {
+    const qty = Math.max(1, item.quantity || 1);
+    const idx = products.findIndex((p) => p.id === item.productId || p.sku === item.productId);
+    if (idx !== -1) {
+      const cur = typeof products[idx].stock === "number" ? products[idx].stock : 0;
+      const newStock = mode === "deduct" ? Math.max(0, cur - qty) : cur + qty;
+      products[idx] = {
+        ...products[idx],
+        stock: newStock,
+        updatedAt: new Date().toISOString(),
+      };
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    saveDbStore({ products });
+  }
+}

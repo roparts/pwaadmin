@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-session";
-import { loadOrdersStore, saveOrdersStore } from "@/lib/db";
+import { loadOrdersStore, saveOrdersStore, adjustStockForOrderInDb } from "@/lib/db";
 import { proxyToBackend } from "@/lib/api-client";
 import type { Order, OrderStatus, FulfillmentType } from "@/lib/types";
 
@@ -95,6 +95,17 @@ export async function PUT(request: NextRequest) {
       },
       updatedAt: new Date().toISOString(),
     };
+
+    // Adjust inventory stock on cancellation or reinstatement in local fallback store
+    if (existing.status !== "cancelled" && updatedStatus === "cancelled") {
+      if (Array.isArray(existing.items) && existing.items.length > 0) {
+        adjustStockForOrderInDb(existing.items.map((it) => ({ productId: it.productId, quantity: it.quantity })), "restore");
+      }
+    } else if (existing.status === "cancelled" && updatedStatus !== "cancelled") {
+      if (Array.isArray(existing.items) && existing.items.length > 0) {
+        adjustStockForOrderInDb(existing.items.map((it) => ({ productId: it.productId, quantity: it.quantity })), "deduct");
+      }
+    }
 
     orders[idx] = updated;
     saveOrdersStore(orders);

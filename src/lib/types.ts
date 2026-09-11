@@ -78,6 +78,9 @@ export interface Coupon {
   active?: boolean;
   status?: "active" | "expired" | "disabled";
   createdAt?: string;
+  description?: string;
+  showInCart?: boolean;
+  showInSuggestions?: boolean;
 }
 
 export type OrderStatus =
@@ -112,6 +115,7 @@ export interface Address {
   longitude?: number;
   gpsAccuracy?: number;
   mapUrl?: string;
+  gstin?: string;
 }
 
 export interface OrderItem {
@@ -165,6 +169,13 @@ export interface Order {
   billingAddress?: Address;
   paymentId?: string;
   paymentMethod?: string;
+  paymentDetails?: {
+    upiApp?: string;
+    upiVpa?: string;
+    cardLast4?: string;
+    cardBrand?: string;
+    bankName?: string;
+  };
   paymentStatus?: string;
   tracking: OrderTrackingInfo;
   milestones?: Array<{
@@ -174,8 +185,82 @@ export interface Order {
     timestamp: string;
     completed: boolean;
   }>;
+  invoiceNumber?: string;
+  invoiceDate?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TaxInvoice {
+  id: string;
+  invoiceNumber: string;
+  orderNumber: string;
+  orderId: string;
+  customerId: string;
+  customerName: string;
+  customerMobile: string;
+  customerEmail?: string;
+  sellerDetails: {
+    legalName: string;
+    tradeName: string;
+    gstin: string;
+    address: string;
+    city: string;
+    state: string;
+    stateCode: string;
+    pincode: string;
+    phone: string;
+    email: string;
+  };
+  buyerDetails: {
+    name: string;
+    mobile: string;
+    email?: string;
+    line1: string;
+    line2?: string;
+    landmark?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    gstin?: string;
+  };
+  placeOfSupply: string;
+  items: Array<{
+    name: string;
+    hsn: string;
+    quantity: number;
+    unitPrice: number;
+    taxableAmount: number;
+    gstRate: number;
+    cgst: number;
+    sgst: number;
+    igst: number;
+    totalAmount: number;
+  }>;
+  financialSummary: {
+    subtotal: number;
+    couponDiscount: number;
+    shippingCharges: number;
+    totalTaxableAmount: number;
+    cgstTotal: number;
+    sgstTotal: number;
+    igstTotal: number;
+    totalGst: number;
+    grandTotal: number;
+    amountInWords: string;
+  };
+  paymentMethod: "online" | "upi" | "cod" | "card" | "netbanking" | string;
+  paymentDetails?: {
+    upiApp?: string;
+    upiVpa?: string;
+    cardLast4?: string;
+    cardBrand?: string;
+    bankName?: string;
+  };
+  paymentStatus: "pending" | "paid" | "failed" | "refunded" | "cod" | string;
+  status: "issued" | "cancelled";
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface CartItemDetail {
@@ -225,4 +310,98 @@ export interface CustomerStats {
   repeatCustomers: number;
   wishlistedCount?: number;
   highValueCount?: number;
+}
+
+// -------------------------------------------------------------
+// Field Service & Technician Types for Admin Dashboard
+// -------------------------------------------------------------
+
+export type ServiceStatus =
+  | "BOOKED"
+  | "ASSIGNED"
+  | "IN_TRANSIT"
+  | "IN_PROGRESS"
+  | "WAITING_APPROVAL"
+  | "COMPLETED"
+  | "CANCELLED";
+
+export interface ProposedPartItem {
+  productId: string;
+  name: string;
+  sku?: string;
+  unitPrice: number; // in paise (e.g. 25000 = ₹250)
+  quantity: number;
+  totalPrice: number; // in paise
+  image?: string;
+}
+
+export interface ServiceProposal {
+  id?: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  parts: ProposedPartItem[];
+  totalAmount: number; // in paise
+  technicianNotes?: string;
+  customerNotes?: string;
+  createdAt?: string;
+  resolvedAt?: string;
+}
+
+export interface ServiceBooking {
+  id: string; // SRV-xxxx
+  customerName: string;
+  customerPhone: string;
+  address: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    landmark?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  serviceType: "STANDARD_RO_SERVICE" | "MEMBRANE_REPLACEMENT" | "FILTER_CHANGE" | "FULL_INSTALLATION" | "LEAKAGE_REPAIR";
+  problemDescription?: string;
+  bookingFee: number; // 4900 paise (₹49)
+  status: ServiceStatus;
+  assignedTechnicianId?: string;
+  assignedTechnicianName?: string;
+  assignedTechnicianPhone?: string;
+  assignedAt?: string;
+  cancellationOtp?: string;
+  cancellationReason?: string;
+  approvalAttemptsCount: number; // Max 3
+  currentApprovalId?: string;
+  latestProposal?: ServiceProposal;
+  proposals?: ServiceProposal[];
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Technician {
+  id: string; // TECH-xxxx
+  name: string;
+  phone: string; // 10-digit whitelist phone
+  alternatePhone?: string;
+  status: "ACTIVE" | "INACTIVE" | "ON_DUTY" | "SUSPENDED";
+  assignedCity: string;
+  registeredByAdminId?: string;
+  dailyJobsCount?: number;
+  currentJobId?: string;
+  rating?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceEvent {
+  id: string; // EVT-xxxx
+  serviceId: string;
+  actorType: "CUSTOMER" | "TECHNICIAN" | "ADMIN" | "SYSTEM";
+  actorId: string;
+  eventType: string;
+  previousStatus?: ServiceStatus;
+  newStatus?: ServiceStatus;
+  metadata?: Record<string, any>;
+  createdAt: string;
 }

@@ -1,3 +1,18 @@
+:root {
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-card-border: #e2e8f0;
+  --admin-card-border-subtle: #f1f5f9;
+  --admin-text-primary: #0f172a;
+  --admin-text-secondary: #475569;
+  --admin-text-muted: #64748b;
+  --admin-header-bg: #ffffff;
+  --admin-input-bg: #ffffff;
+  --admin-input-border: #cbd5e1;
+  --admin-accent: #0f172a;
+  --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,8 +20,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: #f8fafc;
+  color: #0f172a;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -17,7 +32,7 @@ button {
 }
 
 button:hover {
-  filter: brightness(1.1);
+  filter: brightness(0.97);
 }
 
 button:active {
@@ -28,20 +43,25 @@ input, select, textarea {
   font-family: inherit;
 }
 
+::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }

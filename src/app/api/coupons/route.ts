@@ -67,17 +67,36 @@ export async function POST(request: NextRequest) {
 
   // 2. Fallback local creation
   if (!createdCoupon) {
+    const minPaise = typeof body.minOrder === "number"
+      ? body.minOrder
+      : (typeof body.minOrderAmount === "number"
+        ? body.minOrderAmount
+        : Math.round((Number(body.minOrderRupees) || 0) * 100));
+
+    const isFixed = body.type === "fixed" || body.discountType === "fixed";
+    const rawVal = Number(body.value ?? body.discountValue ?? 0);
+    const normalizedVal = isFixed && rawVal < 1000 ? Math.round(rawVal * 100) : rawVal;
+
     createdCoupon = {
       code: String(body.code).trim().toUpperCase(),
-      type: "percentage",
-      value: Number(body.value),
-      minOrder: Number(body.minOrder) || 0,
+      type: isFixed ? "fixed" : "percentage",
+      discountType: isFixed ? "fixed" : "percentage",
+      value: normalizedVal,
+      discountValue: normalizedVal,
+      minOrder: minPaise,
+      minOrderAmount: minPaise,
       maxDiscount: Number(body.maxDiscount) || 50000,
+      maxDiscountAmount: Number(body.maxDiscount) || 50000,
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 90 * 86400000).toISOString(),
-      usageLimit: 1000,
+      usageLimit: Number(body.usageLimit) || 1000,
       usedCount: 0,
       status: "active",
+      active: true,
+      description: body.description ? String(body.description).trim() : undefined,
+      showInCart: body.showInCart !== false,
+      showInSuggestions: body.showInCart !== false,
+      createdAt: new Date().toISOString(),
     };
   }
 
@@ -92,6 +111,48 @@ export async function POST(request: NextRequest) {
   saveDbStore({ coupons });
 
   return NextResponse.json({ success: true, data: { coupon: createdCoupon, message: "Coupon created!" } });
+}
+
+export async function PATCH(request: NextRequest) {
+  const session = await getAdminSession(request);
+  if (!session) {
+    return NextResponse.json({ success: false, error: "Admin session required" }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const code = String(body?.code || "").trim().toUpperCase();
+  if (!code) {
+    return NextResponse.json({ success: false, error: "Code required" }, { status: 400 });
+  }
+
+  // 1. Proxy to central backend
+  try {
+    await proxyToBackend("/admin/coupons", {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    console.warn("Proxying patch coupon to central backend failed:", err);
+  }
+
+  // 2. Update local store
+  const store = loadDbStore();
+  const coupons = store.coupons || [];
+  const idx = coupons.findIndex((c) => c.code.toUpperCase() === code);
+  if (idx < 0) {
+    return NextResponse.json({ success: false, error: "Coupon not found" }, { status: 404 });
+  }
+
+  if (typeof body.showInCart === "boolean") {
+    coupons[idx].showInCart = body.showInCart;
+    coupons[idx].showInSuggestions = body.showInCart;
+  }
+  if (typeof body.status === "string") {
+    coupons[idx].status = body.status;
+  }
+  saveDbStore({ coupons });
+
+  return NextResponse.json({ success: true, data: { coupon: coupons[idx] } });
 }
 
 export async function DELETE(request: NextRequest) {
